@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // 两个类别数据
 const categories = [
   {
-    name: 'Landscape',
+    name: 'None People',
     images: [
       '/assets/landscape/1.jpg',
       '/assets/landscape/2.jpg',
@@ -23,7 +23,7 @@ const categories = [
     ],
   },
   {
-    name: 'Portrait',
+    name: 'People',
     images: [
       '/assets/portrait/1.jpg',
       '/assets/portrait/2.jpg',
