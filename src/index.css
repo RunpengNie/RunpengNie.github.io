@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 自定义全局样式 */
+body {
+  @apply bg-seaBlack text-white font-sans;
+}
+
+html {
+  scroll-behavior: smooth;
+}
