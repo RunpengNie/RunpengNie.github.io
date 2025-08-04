@@ -11,7 +11,6 @@ function Home() {
       const id = location.state.scrollToId;
       const el = document.getElementById(id);
       if (el) {
-        // 等待页面渲染后滚动
         setTimeout(() => {
           el.scrollIntoView({ behavior: 'smooth' });
         }, 100);
@@ -21,7 +20,7 @@ function Home() {
 
   return (
     <>
-      {/* Hero Section / Profile Picture */}
+      {/* Hero Section */}
       <section
         id="home"
         className="relative h-screen flex items-center justify-center text-center bg-cover bg-center"
@@ -29,10 +28,8 @@ function Home() {
           backgroundImage: "url('/assets/backgroundPic.jpg')"
         }}
       >
-        {/* 半透明遮罩层 */}
         <div className="absolute inset-0 bg-black/50"></div>
 
-        {/* 内容 */}
         <motion.div
           className="relative z-10 text-white px-4"
           initial={{ opacity: 0, y: 20 }}
@@ -50,7 +47,6 @@ function Home() {
 
       {/* About Section */}
       <section id="about" className="max-w-6xl mx-auto px-4 py-16">
-        {/* title */}
         <motion.h3
           className="text-myOrange text-3xl font-bold text-center mb-12"
           initial={{ opacity: 0 }}
@@ -61,7 +57,6 @@ function Home() {
           About Me
         </motion.h3>
 
-        {/* profile pic + text intro */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
           {/* profile pic */}
           <motion.img
@@ -87,18 +82,20 @@ function Home() {
             </h1>
             <p className="mb-4">
               Terrible English speaker and an authentic H1B indentured servant, just waiting for the next round of
-              layoffs. Thanks to the US job market, I’ve become an expert at job hunting and moving across states.
-              I’ve helped many friends land positions at various tech companies. I earned my Master’s from the
-              University of Illinois at Urbana-Champaign because it’s affordable and has high CS rankings. My
-              bachelor's degree is from the University of Minnesota Twin Cities, mainly because it’s cheap too
-              and my favorite basketball player was on the Minnesota Timberwolves, having conflicts with every
-              one of his teammates at the time.
+              layoffs. Thanks to the U.S. job market, I’ve gained extensive experience in handling layoffs, employers
+              retracting offers, and moving across states. I have also helped many friends land positions at various tech
+              companies. I earned my Master’s from the University of Illinois at Urbana-Champaign because it’s{' '}
+              <del className="text-gray-400">cheap</del> affordable
+              {' '}and has high CS rankings. My bachelor's degree is from the University of Minnesota Twin Cities,
+              mainly because it’s <del className="text-gray-400">cheap</del> affordable
+              {' '}too, and my favorite basketball player was on the Minnesota Timberwolves, constantly having conflicts
+              with every one of his teammates at the time.
             </p>
             <p>
               Apart from that, I love sports, especially basketball. Before I retired due to back and knee injuries,
-              I was part of the Shandong Golden Stars youth training program. I also enjoy traveling and photography,
+              I was part of the Shandong Gold Lions youth training program. I also enjoy traveling and photography,
               though I’m not exactly photogenic—so you won’t find me in any of my photos. I love food and cooking,
-              but I absolutely hate washing dishes. And, I’m a big fan of sleep (I love my bed),
+              but I absolutely hate washing dishes. And I’m a big fan of sleep (I love my bed),
               even though I’m constantly staying up too late.
             </p>
           </motion.div>
@@ -112,7 +109,7 @@ function Home() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          Oh, and by the way, I’m cheap — so if you want to hire me and you’re offering sponsorship, feel free to contact me.
+          Oh, and by the way, I’m open to any opportunities — so if you want to hire me and you’re offering sponsorship, feel free to contact me.
         </motion.div>
       </section>
 

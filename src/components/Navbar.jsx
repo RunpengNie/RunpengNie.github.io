@@ -19,17 +19,14 @@ function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 新版点击导航项函数
   const handleNavClick = (id) => {
     if (location.pathname === '/') {
-      // 在首页，直接滚动
       const section = document.getElementById(id);
       if (section) {
         section.scrollIntoView({ behavior: 'smooth' });
       }
       setIsOpen(false);
     } else {
-      // 不在首页，先跳转首页并传递要滚动的目标id
       navigate('/', { state: { scrollToId: id } });
       setIsOpen(false);
     }
@@ -47,9 +44,12 @@ function Navbar() {
           {/* Logo / Name */}
           <button
             onClick={() => handleNavClick('home')}
-            className="text-myOrange text-xl font-bold hover:opacity-80"
+            className={`
+              text-xl font-bold hover:opacity-80 transition-colors duration-300
+              ${isScrolled ? 'text-black' : 'text-transparent'}
+            `}
           >
-            Jerry Nie
+            Hi, I am Jerry, nice to meet you
           </button>
 
           {/* Desktop Menu */}

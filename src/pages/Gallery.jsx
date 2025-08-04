@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // 两个类别数据
 const categories = [
   {
-    name: 'None People',
+    name: 'Non-people',
     images: [
       '/assets/landscape/1.jpg',
       '/assets/landscape/2.jpg',
@@ -99,7 +99,7 @@ function Gallery() {
         <button
           onClick={prevPhoto}
           aria-label="Previous Photo"
-          className="text-white bg-myOrange bg-opacity-80 hover:bg-opacity-100 rounded-full p-4 focus:outline-none select-none"
+          className="text-white text-3xl bg-black/50 hover:bg-myOrange hover:text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110 select-none"
         >
           ‹
         </button>
@@ -124,7 +124,7 @@ function Gallery() {
         <button
           onClick={nextPhoto}
           aria-label="Next Photo"
-          className="text-white bg-myOrange bg-opacity-80 hover:bg-opacity-100 rounded-full p-4 focus:outline-none select-none"
+          className="text-white text-3xl bg-black/50 hover:bg-myOrange hover:text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110 select-none"
         >
           ›
         </button>
@@ -132,23 +132,20 @@ function Gallery() {
 
       {/* 图片介绍 */}
       <div className="mt-6 text-center text-white max-w-xl select-none whitespace-pre-line">
-        {currentCategory.name === 'Landscape' ? (
-          // 风光类：只显示地点
+        {currentCategory.name === 'Non-people' ? (
+          // 非人像类：只显示地点
           <div className="text-lg">{descriptions[photoIndex].location}</div>
         ) : (
           // 人像类：三行
           <>
-            {/* 标题：灰色、斜体、大字号 */}
             <div className="text-gray-400 italic text-2xl mb-1">
               {descriptions[photoIndex].title}
             </div>
-            {/* 地点 */}
             <div className="text-base text-gray-200">
               {descriptions[photoIndex].location}
             </div>
-            {/* 模特 */}
             <div className="text-base text-gray-200">
-              Model：{descriptions[photoIndex].model}
+              Model: {descriptions[photoIndex].model}
             </div>
           </>
         )}
