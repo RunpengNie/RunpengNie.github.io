@@ -7,8 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        myOrange: "#FF8000", // 旧版网站主橙色
-        seaBlack: "#0b0e0e"  // 旧版网站深黑色
+        // accentColor: "#FF8000", // 旧版网站主橙色
+        accentColor: "#B0C4DE",
+        backGroundColor: "#0b0e0e"  // 旧版网站深黑色
       }
     }
   },

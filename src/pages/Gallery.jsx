@@ -81,19 +81,19 @@ function Gallery() {
         <button
           onClick={prevCategory}
           aria-label="Previous Category"
-          className="text-myOrange bg-black bg-opacity-50 hover:bg-opacity-80 rounded-full p-3 select-none"
+          className="text-accentColor bg-black bg-opacity-50 hover:bg-opacity-80 rounded-full p-3 select-none"
         >
           ‹
         </button>
 
-        <h3 className="text-myOrange text-4xl font-bold text-center select-none">
+        <h3 className="text-accentColor text-4xl font-bold text-center select-none">
           {currentCategory.name}
         </h3>
 
         <button
           onClick={nextCategory}
           aria-label="Next Category"
-          className="text-myOrange bg-black bg-opacity-50 hover:bg-opacity-80 rounded-full p-3 select-none"
+          className="text-accentColor bg-black bg-opacity-50 hover:bg-opacity-80 rounded-full p-3 select-none"
         >
           ›
         </button>
@@ -105,7 +105,7 @@ function Gallery() {
         <button
           onClick={prevPhoto}
           aria-label="Previous Photo"
-          className="text-white text-3xl bg-black/50 hover:bg-myOrange hover:text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110 select-none"
+          className="text-white text-3xl bg-black/50 hover:bg-accentColor hover:text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110 select-none"
         >
           ‹
         </button>
@@ -130,7 +130,7 @@ function Gallery() {
         <button
           onClick={nextPhoto}
           aria-label="Next Photo"
-          className="text-white text-3xl bg-black/50 hover:bg-myOrange hover:text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110 select-none"
+          className="text-white text-3xl bg-black/50 hover:bg-accentColor hover:text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110 select-none"
         >
           ›
         </button>

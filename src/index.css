@@ -4,7 +4,7 @@
 
 /* 自定义全局样式 */
 body {
-  @apply bg-seaBlack text-white font-sans;
+  @apply bg-backGroundColor text-white font-sans;
 }
 
 html {
