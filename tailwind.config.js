@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         // accentColor: "#FF8000", // 旧版网站主橙色
-        accentColor: "#B0C4DE",
+        accentColor: "#4169E1",
         backGroundColor: "#0b0e0e"  // 旧版网站深黑色
       }
     }

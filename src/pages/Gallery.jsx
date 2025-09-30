@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// 两个类别数据
 const categories = [
   {
     name: 'Non-people',
@@ -33,12 +32,14 @@ const categories = [
       '/assets/portrait/2.jpg',
       '/assets/portrait/3.jpg',
       '/assets/portrait/4.jpg',
+      '/assets/portrait/5.jpg',
     ],
     descriptions: [
       { title: 'A Lady Amidst the Flowers', location: 'Olalla Canyon, WA, United States', model: 'Iris C.' },
       { title: 'Twilight Silhouette by the Sea', location: 'Bird Rock, CA, United States', model: 'Tongyue J.' },
       { title: 'Light and Shadow', location: '37.501311N 122.472303W, CA, United States', model: 'Vincent X.' },
       { title: 'Serenity Afloat', location: 'Lake Washington, WA, United States', model: 'Jerry N.' },
+      { title: 'Climber', location: 'Hurricane Ridge, WA, United States', model: 'Tony L.' },
     ],
   },
 ];
@@ -46,12 +47,12 @@ const categories = [
 function Gallery() {
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const currentCategory = categories[categoryIndex];
   const images = currentCategory.images;
   const descriptions = currentCategory.descriptions;
 
-  // 切换类别（循环）
   const prevCategory = () => {
     const newIndex = (categoryIndex - 1 + categories.length) % categories.length;
     setCategoryIndex(newIndex);
@@ -64,7 +65,6 @@ function Gallery() {
     setPhotoIndex(0);
   };
 
-  // 切换照片（循环）
   const prevPhoto = () => {
     setPhotoIndex((photoIndex - 1 + images.length) % images.length);
   };
@@ -73,11 +73,15 @@ function Gallery() {
     setPhotoIndex((photoIndex + 1) % images.length);
   };
 
-  return (
-    <section className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
 
-      {/* 类别切换区 */}
-      <div className="flex items-center justify-center gap-6 mb-12 w-full max-w-xl">
+  return (
+    <section className="max-w-7xl mx-auto px-4 py-12 flex flex-col items-center">
+
+      {/* Category Switch */}
+      <div className="flex items-center justify-center gap-6 mb-8 w-full max-w-xl">
         <button
           onClick={prevCategory}
           aria-label="Previous Category"
@@ -86,7 +90,7 @@ function Gallery() {
           ‹
         </button>
 
-        <h3 className="text-accentColor text-4xl font-bold text-center select-none">
+        <h3 className="text-accentColor text-3xl font-bold text-center select-none">
           {currentCategory.name}
         </h3>
 
@@ -99,9 +103,9 @@ function Gallery() {
         </button>
       </div>
 
-      {/* 图片展示区 */}
-      <div className="flex items-center justify-center w-full max-w-5xl mx-auto gap-6">
-        {/* 左箭头 */}
+      {/* Image Viewer */}
+      <div className="flex items-center justify-center w-full gap-6">
+        {/* Left Arrow */}
         <button
           onClick={prevPhoto}
           aria-label="Previous Photo"
@@ -110,14 +114,14 @@ function Gallery() {
           ‹
         </button>
 
-        {/* 图片容器 */}
-        <div className="flex-shrink-0 max-w-[90vw]">
+        {/* Image */}
+        <div className="flex-shrink-0 max-w-full cursor-pointer" onClick={toggleFullscreen}>
           <AnimatePresence mode="wait">
             <motion.img
               key={images[photoIndex]}
               src={images[photoIndex]}
               alt={`${currentCategory.name} image ${photoIndex + 1}`}
-              className="w-full max-h-[80vh] rounded-lg shadow-lg object-contain"
+              className="w-full max-h-[90vh] rounded-lg shadow-lg object-contain"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
@@ -126,7 +130,7 @@ function Gallery() {
           </AnimatePresence>
         </div>
 
-        {/* 右箭头 */}
+        {/* Right Arrow */}
         <button
           onClick={nextPhoto}
           aria-label="Next Photo"
@@ -136,26 +140,39 @@ function Gallery() {
         </button>
       </div>
 
-      {/* 图片介绍 */}
-      <div className="mt-6 text-center text-white max-w-xl select-none whitespace-pre-line">
+      {/* Image Description */}
+      <div className="mt-4 text-center text-white max-w-xl select-none whitespace-pre-line">
         {currentCategory.name === 'Non-people' ? (
-          // 非人像类：只显示地点
-          <div className="text-lg">{descriptions[photoIndex].location}</div>
+          <div className="text-sm text-gray-300">{descriptions[photoIndex].location}</div>
         ) : (
-          // 人像类：三行
           <>
-            <div className="text-gray-400 italic text-2xl mb-1">
+            <div className="text-gray-400 italic text-lg mb-1">
               {descriptions[photoIndex].title}
             </div>
-            <div className="text-base text-gray-200">
-              {descriptions[photoIndex].location}
-            </div>
-            <div className="text-base text-gray-200">
-              Model: {descriptions[photoIndex].model}
-            </div>
+            <div className="text-sm text-gray-300">{descriptions[photoIndex].location}</div>
+            <div className="text-sm text-gray-300">Model: {descriptions[photoIndex].model}</div>
           </>
         )}
       </div>
+
+      {/* Fullscreen Overlay */}
+      {isFullscreen && (
+        <div
+          className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4"
+          onClick={toggleFullscreen}
+        >
+          <motion.img
+            key={`fullscreen-${images[photoIndex]}`}
+            src={images[photoIndex]}
+            alt={`${currentCategory.name} image ${photoIndex + 1}`}
+            className="max-w-full max-h-full rounded-lg shadow-xl object-contain cursor-zoom-out"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
+      )}
     </section>
   );
 }
