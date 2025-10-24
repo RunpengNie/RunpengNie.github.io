@@ -20,6 +20,7 @@ const categories = [
       '/assets/landscape/13.jpg',
       // '/assets/landscape/14.dng', need more work here
       '/assets/landscape/15.jpg',
+      '/assets/landscape/16.jpg',
     ],
     descriptions: [
       { location: 'Bird Rock, CA, United States' },
@@ -37,6 +38,7 @@ const categories = [
       { location: 'Minneapolis, MN, United States' },
       // { location: 'Las Vegas, NV, United States' },
       { location: 'Las Vegas, NV, United States' },
+      { location: 'Bellevue, WA, United States' },
     ],
   },
   {
