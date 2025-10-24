@@ -87,17 +87,10 @@ function Gallery() {
   };
 
   // Switch photos
-  const prevPhoto = () => {
-    setPhotoIndex((photoIndex - 1 + images.length) % images.length);
-  };
+  const prevPhoto = () => setPhotoIndex((photoIndex - 1 + images.length) % images.length);
+  const nextPhoto = () => setPhotoIndex((photoIndex + 1) % images.length);
 
-  const nextPhoto = () => {
-    setPhotoIndex((photoIndex + 1) % images.length);
-  };
-
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-  };
+  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
   // Privacy pop up
   useEffect(() => {
@@ -106,6 +99,21 @@ function Gallery() {
       setPopupShown(true);
     }
   }, [currentCategory.name, popupShown]);
+
+  // preload ±2 photos
+  useEffect(() => {
+    const preloadIndices = [
+      (photoIndex - 2 + images.length) % images.length,
+      (photoIndex - 1 + images.length) % images.length,
+      (photoIndex + 1) % images.length,
+      (photoIndex + 2) % images.length,
+    ];
+
+    preloadIndices.forEach(i => {
+      const img = new Image();
+      img.src = images[i];
+    });
+  }, [photoIndex, images]);
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12 flex flex-col items-center">
@@ -120,9 +128,7 @@ function Gallery() {
           ‹
         </button>
 
-        <h3 className="text-accentColor text-3xl font-bold text-center select-none">
-          {currentCategory.name}
-        </h3>
+        <h3 className="text-accentColor text-3xl font-bold text-center select-none">{currentCategory.name}</h3>
 
         <button
           onClick={nextCategory}
@@ -173,9 +179,7 @@ function Gallery() {
           <div className="text-sm text-gray-300">{descriptions[photoIndex].location}</div>
         ) : (
           <>
-            <div className="text-gray-400 italic text-lg mb-1">
-              {descriptions[photoIndex].title}
-            </div>
+            <div className="text-gray-400 italic text-lg mb-1">{descriptions[photoIndex].title}</div>
             <div className="text-sm text-gray-300">{descriptions[photoIndex].location}</div>
             <div className="text-sm text-gray-300">Model: {descriptions[photoIndex].model}</div>
           </>
