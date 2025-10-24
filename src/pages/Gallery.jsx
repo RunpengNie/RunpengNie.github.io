@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const categories = [
@@ -13,16 +13,30 @@ const categories = [
       '/assets/landscape/6.jpg',
       '/assets/landscape/7.jpg',
       '/assets/landscape/8.jpg',
+      '/assets/landscape/9.jpg',
+      '/assets/landscape/10.jpg',
+      '/assets/landscape/11.jpg',
+      '/assets/landscape/12.jpg',
+      '/assets/landscape/13.jpg',
+      // '/assets/landscape/14.dng', need more work here
+      '/assets/landscape/15.jpg',
     ],
     descriptions: [
       { location: 'Bird Rock, CA, United States' },
-      { location: 'Bellevue, WA, United States' },
+      { location: 'Seattle/Bellevue, WA, United States' },
       { location: 'I90, WA, United States' },
       { location: 'Cancún, Mexico' },
       { location: 'Cancún, Mexico' },
       { location: 'Fog Harbor Fish House, CA, United States' },
       { location: 'Yunnan, China' },
       { location: 'Longs Peak, CO, United States' },
+      { location: 'Olympic National Park/Seattle/Bellevue, WA, United States' },
+      { location: 'University of Colorado Boulder, CO, United States' },
+      { location: 'Minneapolis, MN, United States' },
+      { location: '44.783949°N 117.813169°W, Oregon, United States' },
+      { location: 'Minneapolis, MN, United States' },
+      // { location: 'Las Vegas, NV, United States' },
+      { location: 'Las Vegas, NV, United States' },
     ],
   },
   {
@@ -33,6 +47,7 @@ const categories = [
       '/assets/portrait/3.jpg',
       '/assets/portrait/4.jpg',
       '/assets/portrait/5.jpg',
+      '/assets/portrait/6.jpg',
     ],
     descriptions: [
       { title: 'A Lady Amidst the Flowers', location: 'Olalla Canyon, WA, United States', model: 'Iris C.' },
@@ -40,6 +55,7 @@ const categories = [
       { title: 'Light and Shadow', location: '37.501311N 122.472303W, CA, United States', model: 'Vincent X.' },
       { title: 'Serenity Afloat', location: 'Lake Washington, WA, United States', model: 'Jerry N.' },
       { title: 'Climber', location: 'Hurricane Ridge, WA, United States', model: 'Tony L.' },
+      { title: 'Lost in the Skyline', location: 'Strat/Stratosphere, NV, United States', model: 'Yuxin Z.' },
     ],
   },
 ];
@@ -48,11 +64,14 @@ function Gallery() {
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showPrivacyPopup, setShowPrivacyPopup] = useState(false);
+  const [popupShown, setPopupShown] = useState(false);
 
   const currentCategory = categories[categoryIndex];
   const images = currentCategory.images;
   const descriptions = currentCategory.descriptions;
 
+  // Switch Category 
   const prevCategory = () => {
     const newIndex = (categoryIndex - 1 + categories.length) % categories.length;
     setCategoryIndex(newIndex);
@@ -65,6 +84,7 @@ function Gallery() {
     setPhotoIndex(0);
   };
 
+  // Switch photos
   const prevPhoto = () => {
     setPhotoIndex((photoIndex - 1 + images.length) % images.length);
   };
@@ -76,6 +96,14 @@ function Gallery() {
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
   };
+
+  // Privacy pop up
+  useEffect(() => {
+    if (currentCategory.name === 'People' && !popupShown) {
+      setShowPrivacyPopup(true);
+      setPopupShown(true);
+    }
+  }, [currentCategory.name, popupShown]);
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12 flex flex-col items-center">
@@ -105,7 +133,6 @@ function Gallery() {
 
       {/* Image Viewer */}
       <div className="flex items-center justify-center w-full gap-6">
-        {/* Left Arrow */}
         <button
           onClick={prevPhoto}
           aria-label="Previous Photo"
@@ -114,7 +141,6 @@ function Gallery() {
           ‹
         </button>
 
-        {/* Image */}
         <div className="flex-shrink-0 max-w-full cursor-pointer" onClick={toggleFullscreen}>
           <AnimatePresence mode="wait">
             <motion.img
@@ -130,7 +156,6 @@ function Gallery() {
           </AnimatePresence>
         </div>
 
-        {/* Right Arrow */}
         <button
           onClick={nextPhoto}
           aria-label="Next Photo"
@@ -140,7 +165,7 @@ function Gallery() {
         </button>
       </div>
 
-      {/* Image Description */}
+      {/* Picture Description */}
       <div className="mt-4 text-center text-white max-w-xl select-none whitespace-pre-line">
         {currentCategory.name === 'Non-people' ? (
           <div className="text-sm text-gray-300">{descriptions[photoIndex].location}</div>
@@ -171,6 +196,23 @@ function Gallery() {
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3 }}
           />
+        </div>
+      )}
+
+      {/* Privacy pop up window */}
+      {showPrivacyPopup && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-gray-900 rounded-lg p-6 max-w-sm text-center shadow-lg">
+            <p className="text-white mb-4 text-sm leading-relaxed">
+              To protect the privacy of the models, front-facing portraits of the models are not included.
+            </p>
+            <button
+              onClick={() => setShowPrivacyPopup(false)}
+              className="px-4 py-2 bg-accentColor text-black rounded hover:opacity-80 transition"
+            >
+              OK
+            </button>
+          </div>
         </div>
       )}
     </section>
