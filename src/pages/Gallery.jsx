@@ -53,8 +53,8 @@ const categories = [
     ],
     descriptions: [
       { title: 'A Lady Amidst the Flowers', location: 'Olalla Canyon, WA, United States', model: 'Iris C.' },
-      { title: 'Twilight Silhouette by the Sea', location: 'Bird Rock, CA, United States', model: 'Tongyue J.' },
-      { title: 'Light and Shadow', location: '37.501311N 122.472303W, CA, United States', model: 'Vincent X.' },
+      { title: 'Twilight Silhouette by the Sea', location: 'Bird Rock, CA, United States', model: 'Sherry J.' },
+      { title: 'Light and Shadow', location: '37.501311°N 122.472303°W, CA, United States', model: 'Vincent X.' },
       { title: 'Serenity Afloat', location: 'Lake Washington, WA, United States', model: 'Jerry N.' },
       { title: 'Climber', location: 'Hurricane Ridge, WA, United States', model: 'Tony L.' },
       { title: 'Lost in the Skyline', location: 'Strat/Stratosphere, NV, United States', model: 'Yuxin Z.' },
