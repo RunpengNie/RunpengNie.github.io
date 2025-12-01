@@ -68,12 +68,13 @@ function Gallery() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPrivacyPopup, setShowPrivacyPopup] = useState(false);
   const [popupShown, setPopupShown] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const currentCategory = categories[categoryIndex];
   const images = currentCategory.images;
   const descriptions = currentCategory.descriptions;
 
-  // Switch Category 
+  // --- Category Switch ---
   const prevCategory = () => {
     const newIndex = (categoryIndex - 1 + categories.length) % categories.length;
     setCategoryIndex(newIndex);
@@ -86,13 +87,17 @@ function Gallery() {
     setPhotoIndex(0);
   };
 
-  // Switch photos
-  const prevPhoto = () => setPhotoIndex((photoIndex - 1 + images.length) % images.length);
-  const nextPhoto = () => setPhotoIndex((photoIndex + 1) % images.length);
+  // --- Photo Switch ---
+  const prevPhoto = () => {
+    setPhotoIndex((photoIndex - 1 + images.length) % images.length);
+  };
+  const nextPhoto = () => {
+    setPhotoIndex((photoIndex + 1) % images.length);
+  };
 
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
-  // Privacy pop up
+  // --- Privacy popup ---
   useEffect(() => {
     if (currentCategory.name === 'People' && !popupShown) {
       setShowPrivacyPopup(true);
@@ -100,7 +105,7 @@ function Gallery() {
     }
   }, [currentCategory.name, popupShown]);
 
-  // preload ±2 photos
+  // --- Preload adjacent images ---
   useEffect(() => {
     const preloadIndices = [
       (photoIndex - 2 + images.length) % images.length,
@@ -108,16 +113,19 @@ function Gallery() {
       (photoIndex + 1) % images.length,
       (photoIndex + 2) % images.length,
     ];
-
     preloadIndices.forEach(i => {
       const img = new Image();
       img.src = images[i];
     });
   }, [photoIndex, images]);
 
+  // --- Reset imageLoaded when photoIndex changes ---
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [photoIndex, categoryIndex]);
+
   return (
     <section className="max-w-7xl mx-auto px-4 py-12 flex flex-col items-center">
-
       {/* Category Switch */}
       <div className="flex items-center justify-center gap-6 mb-8 w-full max-w-xl">
         <button
@@ -151,17 +159,27 @@ function Gallery() {
 
         <div className="flex-shrink-0 max-w-full cursor-pointer" onClick={toggleFullscreen}>
           <AnimatePresence mode="wait">
-            <motion.img
-              key={images[photoIndex]}
-              src={images[photoIndex]}
-              alt={`${currentCategory.name} image ${photoIndex + 1}`}
-              className="w-full max-h-[90vh] rounded-lg shadow-lg object-contain"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.5 }}
-            />
+            {imageLoaded && (
+              <motion.img
+                key={images[photoIndex]}
+                src={images[photoIndex]}
+                alt={`${currentCategory.name} image ${photoIndex + 1}`}
+                className="w-full max-h-[90vh] rounded-lg shadow-lg object-contain"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.5 }}
+              />
+            )}
           </AnimatePresence>
+
+          {/* Hidden img for loading */}
+          <img
+            src={images[photoIndex]}
+            className="hidden"
+            onLoad={() => setImageLoaded(true)}
+            alt=""
+          />
         </div>
 
         <button
