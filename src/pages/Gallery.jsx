@@ -21,6 +21,8 @@ const categories = [
       // '/assets/landscape/14.dng', need more work here
       '/assets/landscape/15.jpg',
       '/assets/landscape/16.jpg',
+      '/assets/landscape/17.jpg',
+      '/assets/landscape/18.jpg',
     ],
     descriptions: [
       { location: 'Bird Rock, CA, United States' },
@@ -39,6 +41,8 @@ const categories = [
       // { location: 'Las Vegas, NV, United States' },
       { location: 'Las Vegas, NV, United States' },
       { location: 'Bellevue, WA, United States' },
+      { location: 'San Juan, PR, United States' },
+      { location: 'San Juan, PR, United States' },
     ],
   },
   {
@@ -50,14 +54,20 @@ const categories = [
       '/assets/portrait/4.jpg',
       '/assets/portrait/5.jpg',
       '/assets/portrait/6.jpg',
+      '/assets/portrait/7.jpg',
+      '/assets/portrait/8.jpg',
+      '/assets/portrait/9.jpg',
     ],
     descriptions: [
-      { title: 'A Lady Amidst the Flowers', location: 'Olalla Canyon, WA, United States', model: 'Iris C.' },
+      { title: '花间佳人', location: 'Olalla Canyon, WA, United States', model: 'Iris C.' },
       { title: 'Twilight Silhouette by the Sea', location: 'Bird Rock, CA, United States', model: 'Sherry J.' },
       { title: 'Light and Shadow', location: '37.501311°N 122.472303°W, CA, United States', model: 'Vincent X.' },
       { title: 'Serenity Afloat', location: 'Lake Washington, WA, United States', model: 'Jerry N.' },
       { title: 'Climber', location: 'Hurricane Ridge, WA, United States', model: 'Tony L.' },
-      { title: 'Lost in the Skyline', location: 'Strat/Stratosphere, NV, United States', model: 'Yuxin Z.' },
+      { title: 'Lost', location: 'Strat/Stratosphere, NV, United States', model: 'Yuxin Z.' },
+      { title: 'Garita Gaze', location: 'San Juan, PR, United States', model: 'Tony L.' },
+      { title: 'Swing', location: 'Vieques, PR, United States', model: 'LL.' },
+      { title: 'Public Storage', location: 'Seattle, WA, United States', model: 'N/A' },
     ],
   },
 ];
