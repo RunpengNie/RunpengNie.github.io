@@ -1,10 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaLinkedin, FaGithub } from 'react-icons/fa';
 
 function Home() {
   const location = useLocation();
+
+  // Random background
+  const bg = useMemo(
+    () => (Math.random() < 0.5 ? '/assets/backgroundPic2.jpg' : '/assets/backgroundPic.jpg'),
+    []
+  );
 
   useEffect(() => {
     if (location.state && location.state.scrollToId) {
@@ -21,27 +27,27 @@ function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section
-        id="home"
-        className="relative h-screen flex items-center justify-center text-center bg-cover bg-center"
-        style={{
-          backgroundImage: "url('/assets/backgroundPic.jpg')"
-        }}
-      >
-        <div className="absolute inset-0 bg-black/50"></div>
+      <section id="home" className="relative w-full">
+        {/* full width, maintaining the original aspect ratio */}
+        <img src={bg} alt="background" className="w-full h-auto block" />
+
+
+        <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
 
         <motion.div
-          className="relative z-10 text-white px-4"
+          className="absolute inset-0 z-10 flex items-center justify-center text-center px-4 text-white"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-accentColor">
-            Runpeng "Jerry" Nie
-          </h1>
-          <h4 id="scroll-trigger" className="text-lg md:text-2xl mb-2">
-            Software | Travel | Photography
-          </h4>
+          <div>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 text-accentColor">
+              Runpeng "Jerry" Nie
+            </h1>
+            <h4 id="scroll-trigger" className="text-lg md:text-2xl mb-2">
+              Software | Travel | Photography
+            </h4>
+          </div>
         </motion.div>
       </section>
 
@@ -62,7 +68,7 @@ function Home() {
           <motion.img
             src="/assets/profilepic.jpg"
             alt="Profile"
-            className="w-48 h-48 object-cover rounded-full border-4 border-accentColor shadow-lg"
+            className="w-48 h-48 object-contain rounded-full border-4 border-accentColor shadow-lg"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}

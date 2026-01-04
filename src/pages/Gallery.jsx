@@ -72,12 +72,23 @@ const categories = [
   },
 ];
 
+// Fisher–Yates shuffle helper — returns a new shuffled copy
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function Gallery() {
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPrivacyPopup, setShowPrivacyPopup] = useState(false);
   const [popupShown, setPopupShown] = useState(false);
+  const [shuffledPairs, setShuffledPairs] = useState([]);
 
   const currentCategory = categories[categoryIndex];
   const images = currentCategory.images;
@@ -96,9 +107,16 @@ function Gallery() {
     setPhotoIndex(0);
   };
 
-  // Switch photos
-  const prevPhoto = () => setPhotoIndex((photoIndex - 1 + images.length) % images.length);
-  const nextPhoto = () => setPhotoIndex((photoIndex + 1) % images.length);
+  // Switch photos (use shuffledPairs length)
+  const prevPhoto = () => {
+    if (!shuffledPairs || shuffledPairs.length === 0) return;
+    setPhotoIndex((photoIndex - 1 + shuffledPairs.length) % shuffledPairs.length);
+  };
+
+  const nextPhoto = () => {
+    if (!shuffledPairs || shuffledPairs.length === 0) return;
+    setPhotoIndex((photoIndex + 1) % shuffledPairs.length);
+  };
 
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
@@ -110,20 +128,32 @@ function Gallery() {
     }
   }, [currentCategory.name, popupShown]);
 
-  // preload ±2 photos
+  // Build and shuffle pairs of { src, desc } for the current category
+  // so images and descriptions stay matched but appear in random order.
   useEffect(() => {
+    const pairs = images.map((src, i) => ({ src, desc: descriptions[i] || {} }));
+    const shuffled = shuffleArray(pairs);
+    setShuffledPairs(shuffled);
+    setPhotoIndex(0);
+  }, [categoryIndex]);
+
+  // preload ±2 photos from shuffledPairs
+  useEffect(() => {
+    if (!shuffledPairs || shuffledPairs.length === 0) return;
+
+    const len = shuffledPairs.length;
     const preloadIndices = [
-      (photoIndex - 2 + images.length) % images.length,
-      (photoIndex - 1 + images.length) % images.length,
-      (photoIndex + 1) % images.length,
-      (photoIndex + 2) % images.length,
+      (photoIndex - 2 + len) % len,
+      (photoIndex - 1 + len) % len,
+      (photoIndex + 1) % len,
+      (photoIndex + 2) % len,
     ];
 
     preloadIndices.forEach(i => {
       const img = new Image();
-      img.src = images[i];
+      img.src = shuffledPairs[i].src;
     });
-  }, [photoIndex, images]);
+  }, [photoIndex, shuffledPairs]);
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12 flex flex-col items-center">
@@ -161,16 +191,18 @@ function Gallery() {
 
         <div className="flex-shrink-0 max-w-full cursor-pointer" onClick={toggleFullscreen}>
           <AnimatePresence mode="wait">
-            <motion.img
-              key={images[photoIndex]}
-              src={images[photoIndex]}
-              alt={`${currentCategory.name} image ${photoIndex + 1}`}
-              className="w-full max-h-[90vh] rounded-lg shadow-lg object-contain"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.5 }}
-            />
+            {shuffledPairs && shuffledPairs[photoIndex] && (
+              <motion.img
+                key={shuffledPairs[photoIndex].src}
+                src={shuffledPairs[photoIndex].src}
+                alt={`${currentCategory.name} image ${photoIndex + 1}`}
+                className="w-full max-h-[90vh] rounded-lg shadow-lg object-contain"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.5 }}
+              />
+            )}
           </AnimatePresence>
         </div>
 
@@ -185,14 +217,16 @@ function Gallery() {
 
       {/* Picture Description */}
       <div className="mt-4 text-center text-white max-w-xl select-none whitespace-pre-line">
-        {currentCategory.name === 'Non-people' ? (
-          <div className="text-sm text-gray-300">{descriptions[photoIndex].location}</div>
-        ) : (
-          <>
-            <div className="text-gray-400 italic text-lg mb-1">{descriptions[photoIndex].title}</div>
-            <div className="text-sm text-gray-300">{descriptions[photoIndex].location}</div>
-            <div className="text-sm text-gray-300">Model: {descriptions[photoIndex].model}</div>
-          </>
+        {shuffledPairs && shuffledPairs[photoIndex] && (
+          currentCategory.name === 'Non-people' ? (
+            <div className="text-sm text-gray-300">{shuffledPairs[photoIndex].desc.location}</div>
+          ) : (
+            <>
+              <div className="text-gray-400 italic text-lg mb-1">{shuffledPairs[photoIndex].desc.title}</div>
+              <div className="text-sm text-gray-300">{shuffledPairs[photoIndex].desc.location}</div>
+              <div className="text-sm text-gray-300">Model: {shuffledPairs[photoIndex].desc.model}</div>
+            </>
+          )
         )}
       </div>
 
@@ -202,16 +236,18 @@ function Gallery() {
           className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4"
           onClick={toggleFullscreen}
         >
-          <motion.img
-            key={`fullscreen-${images[photoIndex]}`}
-            src={images[photoIndex]}
-            alt={`${currentCategory.name} image ${photoIndex + 1}`}
-            className="max-w-full max-h-full rounded-lg shadow-xl object-contain cursor-zoom-out"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.3 }}
-          />
+          {shuffledPairs && shuffledPairs[photoIndex] && (
+            <motion.img
+              key={`fullscreen-${shuffledPairs[photoIndex].src}`}
+              src={shuffledPairs[photoIndex].src}
+              alt={`${currentCategory.name} image ${photoIndex + 1}`}
+              className="max-w-full max-h-full rounded-lg shadow-xl object-contain cursor-zoom-out"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.3 }}
+            />
+          )}
         </div>
       )}
 
