@@ -23,6 +23,7 @@ const categories = [
       '/assets/landscape/16.jpg',
       '/assets/landscape/17.jpg',
       '/assets/landscape/18.jpg',
+      '/assets/landscape/19.jpg',
     ],
     descriptions: [
       { location: 'Bird Rock, CA, United States' },
@@ -43,6 +44,7 @@ const categories = [
       { location: 'Bellevue, WA, United States' },
       { location: 'San Juan, PR, United States' },
       { location: 'San Juan, PR, United States' },
+      { location: 'Seattle/Bellevue, WA, United States' },
     ],
   },
   {
