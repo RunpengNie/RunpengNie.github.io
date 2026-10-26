@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "npm run images",
     "build": "vite build",
+    "prebuild": "npm run images",
+    "images": "node scripts/optimize-images.mjs",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
   },
@@ -21,6 +24,7 @@
     "autoprefixer": "^10.4.16",
     "gh-pages": "^6.1.1",
     "postcss": "^8.4.31",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.1",
     "vite": "^5.2.0"
   }

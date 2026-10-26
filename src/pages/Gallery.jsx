@@ -1,5 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ProgressiveImage from '../components/ProgressiveImage';
+import { fitWidth, getImage, pickVariant, preloadImage } from '../lib/images';
+import useDevicePixelRatio from '../lib/useDevicePixelRatio';
+
+// Main viewer height limit, as a fraction of the viewport height (matches 90vh below).
+const VIEWER_MAX_HEIGHT = 0.9;
+const aspectRatio = (src) => {
+  const { width, height } = getImage(src);
+  return width / height;
+};
 
 const categories = [
   {
@@ -91,6 +101,9 @@ function Gallery() {
   const [showPrivacyPopup, setShowPrivacyPopup] = useState(false);
   const [popupShown, setPopupShown] = useState(false);
   const [shuffledPairs, setShuffledPairs] = useState([]);
+  const [viewerBox, setViewerBox] = useState({ width: 0, height: 0 });
+  const viewerRef = useRef(null);
+  const dpr = useDevicePixelRatio();
 
   const currentCategory = categories[categoryIndex];
   const images = currentCategory.images;
@@ -139,9 +152,24 @@ function Gallery() {
     setPhotoIndex(0);
   }, [categoryIndex]);
 
-  // preload ±2 photos from shuffledPairs
+  // Track the space available to the main viewer, used to size preloads.
+  useLayoutEffect(() => {
+    const el = viewerRef.current;
+    const update = () =>
+      setViewerBox({ width: el.clientWidth, height: window.innerHeight * VIEWER_MAX_HEIGHT });
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
+  // preload ±2 photos from shuffledPairs, at the size the viewer will display them
   useEffect(() => {
-    if (!shuffledPairs || shuffledPairs.length === 0) return;
+    if (!shuffledPairs || shuffledPairs.length === 0 || viewerBox.width === 0) return;
 
     const len = shuffledPairs.length;
     const preloadIndices = [
@@ -152,10 +180,12 @@ function Gallery() {
     ];
 
     preloadIndices.forEach(i => {
-      const img = new Image();
-      img.src = shuffledPairs[i].src;
+      const entry = getImage(shuffledPairs[i].src);
+      const cssWidth = fitWidth(entry, viewerBox.width, viewerBox.height);
+      preloadImage(entry.variants[0].src);
+      preloadImage(pickVariant(entry, Math.ceil(cssWidth * dpr)).src);
     });
-  }, [photoIndex, shuffledPairs]);
+  }, [photoIndex, shuffledPairs, viewerBox, dpr]);
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12 flex flex-col items-center">
@@ -191,19 +221,27 @@ function Gallery() {
           ‹
         </button>
 
-        <div className="flex-shrink-0 max-w-full cursor-pointer" onClick={toggleFullscreen}>
+        <div ref={viewerRef} className="flex-1 min-w-0">
           <AnimatePresence mode="wait">
             {shuffledPairs && shuffledPairs[photoIndex] && (
-              <motion.img
+              <motion.div
                 key={shuffledPairs[photoIndex].src}
-                src={shuffledPairs[photoIndex].src}
-                alt={`${currentCategory.name} image ${photoIndex + 1}`}
-                className="w-full max-h-[90vh] rounded-lg shadow-lg object-contain"
+                className="flex justify-center"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.5 }}
-              />
+              >
+                <ProgressiveImage
+                  src={shuffledPairs[photoIndex].src}
+                  alt={`${currentCategory.name} image ${photoIndex + 1}`}
+                  onClick={toggleFullscreen}
+                  className="cursor-pointer rounded-lg shadow-lg"
+                  style={{
+                    width: `min(100%, calc(90vh * ${aspectRatio(shuffledPairs[photoIndex].src)}))`,
+                  }}
+                />
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -239,16 +277,24 @@ function Gallery() {
           onClick={toggleFullscreen}
         >
           {shuffledPairs && shuffledPairs[photoIndex] && (
-            <motion.img
+            <motion.div
               key={`fullscreen-${shuffledPairs[photoIndex].src}`}
-              src={shuffledPairs[photoIndex].src}
-              alt={`${currentCategory.name} image ${photoIndex + 1}`}
-              className="max-w-full max-h-full rounded-lg shadow-xl object-contain cursor-zoom-out"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.3 }}
-            />
+            >
+              <ProgressiveImage
+                src={shuffledPairs[photoIndex].src}
+                alt={`${currentCategory.name} image ${photoIndex + 1}`}
+                className="rounded-lg shadow-xl cursor-zoom-out"
+                style={{
+                  width: `min(calc(100vw - 2rem), calc((100vh - 2rem) * ${aspectRatio(
+                    shuffledPairs[photoIndex].src
+                  )}))`,
+                }}
+              />
+            </motion.div>
           )}
         </div>
       )}

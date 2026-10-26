@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaLinkedin, FaGithub } from 'react-icons/fa';
+import ProgressiveImage from '../components/ProgressiveImage';
 
 function Home() {
   const location = useLocation();
@@ -29,7 +30,7 @@ function Home() {
       {/* Hero Section */}
       <section id="home" className="relative w-full">
         {/* full width, maintaining the original aspect ratio */}
-        <img src={bg} alt="background" className="w-full h-auto block" />
+        <ProgressiveImage src={bg} alt="background" className="w-full block" priority />
 
 
         <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
