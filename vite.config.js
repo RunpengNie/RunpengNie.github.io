@@ -18,5 +18,5 @@ export default defineConfig({
       }
     }
   ],
-  base: './', // GitHub Pages 推荐 base 用相对路径
+  base: '/', // User site served from the domain root; matches the absolute /assets/... paths
 })

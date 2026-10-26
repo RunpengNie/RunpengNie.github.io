@@ -106,8 +106,6 @@ function Gallery() {
   const dpr = useDevicePixelRatio();
 
   const currentCategory = categories[categoryIndex];
-  const images = currentCategory.images;
-  const descriptions = currentCategory.descriptions;
 
   // Switch Category 
   const prevCategory = () => {
@@ -146,6 +144,7 @@ function Gallery() {
   // Build and shuffle pairs of { src, desc } for the current category
   // so images and descriptions stay matched but appear in random order.
   useEffect(() => {
+    const { images, descriptions } = categories[categoryIndex];
     const pairs = images.map((src, i) => ({ src, desc: descriptions[i] || {} }));
     const shuffled = shuffleArray(pairs);
     setShuffledPairs(shuffled);

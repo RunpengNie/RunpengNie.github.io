@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function Navbar() {
@@ -83,12 +83,12 @@ function Navbar() {
             >
               About
             </button>
-            <a
-              href="/gallery"
+            <Link
+              to="/gallery"
               className="hover:text-black transition transform hover:scale-105"
             >
               Gallery
-            </a>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -128,12 +128,13 @@ function Navbar() {
             >
               About
             </button>
-            <a
-              href="/gallery"
+            <Link
+              to="/gallery"
+              onClick={() => setIsOpen(false)}
               className="block hover:text-black transition transform hover:scale-105"
             >
               Gallery
-            </a>
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

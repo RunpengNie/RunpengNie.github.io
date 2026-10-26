@@ -32,7 +32,3 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
-
-# Optional: npm package lock files (if you want to ignore them)
-/package-lock.json
-/yarn.lock

@@ -4,17 +4,17 @@
 - [x] `public/assets` 下原图单张 2–23MB（landscape 约 166MB、portrait 约 116MB、背景图约 8.5MB），加载很慢
 
 ## 2. Gallery 导航使用 `<a href>` 而非 `<Link>`
-- [ ] `src/components/Navbar.jsx` 中桌面端与移动端菜单的 Gallery 链接使用 `<a href="/gallery">`，会触发整页刷新，导致路由切换动画失效、SPA 状态丢失。
+- [x] `src/components/Navbar.jsx` 中桌面端与移动端菜单的 Gallery 链接使用 `<a href="/gallery">`，会触发整页刷新，导致路由切换动画失效、SPA 状态丢失。
 
 ## 3. 资源路径写法不一致
-- [ ] `vite.config.js` 设置了 `base: './'`（相对路径），但代码中图片使用 `/assets/...` 绝对路径。
+- [x] `vite.config.js` 设置了 `base: './'`（相对路径），但代码中图片使用 `/assets/...` 绝对路径。
 
 ## 4. `.gitignore` 忽略了 `package-lock.json`
-- [ ] `.gitignore` 中有 `/package-lock.json`，但该文件已被 git 跟踪，CI 中的 `npm ci` 依赖它。
-- [ ] `node_modules/` 虽然写在 `.gitignore` 中，但已有约 5000 个文件被 git 跟踪
+- [x] `.gitignore` 中有 `/package-lock.json`，但该文件已被 git 跟踪，CI 中的 `npm ci` 依赖它。
+- [x] `node_modules/` 虽然写在 `.gitignore` 中，但已有约 5000 个文件被 git 跟踪
 
 ## 5. 代码细节
-- [ ] `src/pages/Gallery.jsx`：打乱图片的 `useEffect` 依赖数组只有 `[categoryIndex]`，但使用了 `images` / `descriptions`，会触发 `react-hooks/exhaustive-deps` 警告
+- [x] `src/pages/Gallery.jsx`：打乱图片的 `useEffect` 依赖数组只有 `[categoryIndex]`，但使用了 `images` / `descriptions`，会触发 `react-hooks/exhaustive-deps` 警告
 
 ## 6. 图片隐私与仓库体积
 - [ ] 原图保留了完整 EXIF 信息（可能包含 GPS 定位），人像照片存在隐私风险
