@@ -116,12 +116,14 @@ function Navbar({ solid }) {
       {/* Mobile Menu Dropdown with animation */}
       <AnimatePresence>
         {isOpen && (
+          // Fade/slide instead of animating height: measuring height "auto" makes framer-motion
+          // restore the scroll position, which cancels the smooth scroll started by a menu item.
           <motion.div
             id="mobile-menu"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
             className={`md:hidden overflow-hidden shadow-lg ${
               solid ? 'bg-accentColor' : 'bg-backGroundColor'
             }`}

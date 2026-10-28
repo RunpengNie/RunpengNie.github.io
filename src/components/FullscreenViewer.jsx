@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { animate, motion, useMotionValue } from 'framer-motion';
 import ProgressiveImage from './ProgressiveImage';
-import { getImage } from '../lib/images';
+import { getImage, isLoaded } from '../lib/images';
 import { prefersReducedMotion } from '../lib/motion';
 import useDevicePixelRatio from '../lib/useDevicePixelRatio';
 import useScrollLock from '../lib/useScrollLock';
@@ -12,22 +12,26 @@ const TAP_SLOP = 10;
 const DOUBLE_TAP_MS = 300;
 const DOUBLE_TAP_ZOOM = 2.5;
 const MAX_ZOOM_CAP = 10;
+const ORIGINAL_DELAY_MS = 400;
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const midpoint = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+const formatMB = (bytes) => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 
 // Keeps pointer events on overlay controls from starting a gesture on the viewer.
 const stopGesture = (e) => e.stopPropagation();
 
 /**
- * Fullscreen photo viewer.
+ * Fullscreen photo viewer. Shows the screen-sized variant first, then loads the original file.
  * Touch: pinch to zoom, drag to pan when zoomed, double-tap to zoom, swipe left/right to change
  * photo, swipe down or tap the backdrop to close.
- * Mouse/keyboard: wheel or double-click to zoom, drag to pan, arrow keys to navigate, Esc to close.
+ * Mouse/keyboard: click to toggle 100% zoom, wheel to zoom, drag to pan, arrow keys to navigate,
+ * Esc to close.
  */
 function FullscreenViewer({ src, alt, counter, onPrev, onNext, onClose }) {
   const entry = getImage(src);
+  const original = entry.variants[entry.variants.length - 1];
   const dpr = useDevicePixelRatio();
   const containerRef = useRef(null);
   const frameRef = useRef(null);
@@ -42,6 +46,9 @@ function FullscreenViewer({ src, alt, counter, onPrev, onNext, onClose }) {
   const backdropOpacity = useMotionValue(1);
   // Zoom level committed after a gesture ends; drives which resolution gets loaded.
   const [zoom, setZoom] = useState(1);
+  const [originalLoaded, setOriginalLoaded] = useState(() => isLoaded(original.src));
+  const [showOriginalBadge, setShowOriginalBadge] = useState(true);
+  const [wantOriginal, setWantOriginal] = useState(false);
 
   useScrollLock(true);
 
@@ -51,8 +58,25 @@ function FullscreenViewer({ src, alt, counter, onPrev, onNext, onClose }) {
     y.set(0);
     backdropOpacity.set(1);
     setZoom(1);
+    setOriginalLoaded(isLoaded(original.src));
+    setShowOriginalBadge(true);
+    setWantOriginal(false);
     gesture.current = null;
-  }, [src, scale, x, y, backdropOpacity]);
+  }, [src, original.src, scale, x, y, backdropOpacity]);
+
+  // Only start downloading the (large) original once the user stays on a photo,
+  // so swiping quickly through photos doesn't queue up many full-size downloads.
+  useEffect(() => {
+    const timer = setTimeout(() => setWantOriginal(true), ORIGINAL_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [src]);
+
+  // Briefly confirm that the original is shown, then get out of the way.
+  useEffect(() => {
+    if (!originalLoaded) return undefined;
+    const timer = setTimeout(() => setShowOriginalBadge(false), 2000);
+    return () => clearTimeout(timer);
+  }, [originalLoaded, src]);
 
   // Zoom up to the point where one image pixel covers one device pixel.
   const maxScale = () => {
@@ -96,18 +120,26 @@ function FullscreenViewer({ src, alt, counter, onPrev, onNext, onClose }) {
 
   const resetZoom = () => settle(1, 0, 0);
 
-  const handleTap = (point, onImage) => {
+  const zoomAt = (point, nextScale) => {
+    const t = translationForZoom(point, nextScale);
+    settle(nextScale, t.x, t.y);
+  };
+
+  const handleTap = (point, onImage, pointerType) => {
+    // Mouse: a single click toggles between fit and 100% (one image pixel per device pixel).
+    if (pointerType === 'mouse') {
+      if (!onImage) onClose();
+      else if (scale.get() > 1.01) resetZoom();
+      else zoomAt(point, maxScale());
+      return;
+    }
+
     const now = performance.now();
     const previous = lastTap.current;
     if (previous && now - previous.time < DOUBLE_TAP_MS && distance(previous.point, point) < 30) {
       lastTap.current = null;
-      if (scale.get() > 1.01) {
-        resetZoom();
-      } else {
-        const nextScale = Math.min(DOUBLE_TAP_ZOOM, maxScale());
-        const t = translationForZoom(point, nextScale);
-        settle(nextScale, t.x, t.y);
-      }
+      if (scale.get() > 1.01) resetZoom();
+      else zoomAt(point, Math.min(DOUBLE_TAP_ZOOM, maxScale()));
       return;
     }
     lastTap.current = { time: now, point };
@@ -133,6 +165,7 @@ function FullscreenViewer({ src, alt, counter, onPrev, onNext, onClose }) {
         origin: { x: x.get(), y: y.get() },
         axis: null,
         moved: false,
+        pointerType: e.pointerType,
         onImage: Boolean(e.target.closest('[data-viewer-image]')),
       };
     } else if (points.length === 2) {
@@ -225,7 +258,7 @@ function FullscreenViewer({ src, alt, counter, onPrev, onNext, onClose }) {
     }
 
     if (!g.moved) {
-      handleTap(toLocal(e), g.onImage);
+      handleTap(toLocal(e), g.onImage, g.pointerType);
       return;
     }
 
@@ -316,15 +349,31 @@ function FullscreenViewer({ src, alt, counter, onPrev, onNext, onClose }) {
             src={src}
             alt={alt}
             zoom={zoom}
+            loadOriginal={wantOriginal}
+            onVariantLoad={(variant) => {
+              if (variant.src === original.src) setOriginalLoaded(true);
+            }}
             style={{ width: `min(100vw, calc(100 * var(--dvh) * ${ratio}))` }}
           />
         </motion.div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(1rem,env(safe-area-inset-top))]">
-        <span className="rounded-full bg-black/50 px-3 py-1 text-sm tabular-nums text-white">
-          {counter}
-        </span>
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-3 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(1rem,env(safe-area-inset-top))]">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="rounded-full bg-black/50 px-3 py-1 text-sm tabular-nums text-white">
+            {counter}
+          </span>
+          {showOriginalBadge && (
+            <span
+              className="truncate rounded-full bg-black/50 px-3 py-1 text-xs text-gray-300"
+              aria-live="polite"
+            >
+              {originalLoaded
+                ? `Original · ${original.width} × ${original.height}`
+                : `Loading original · ${formatMB(original.bytes)}`}
+            </span>
+          )}
+        </div>
         <button
           type="button"
           aria-label="Close"

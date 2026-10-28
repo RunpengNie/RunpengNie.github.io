@@ -79,7 +79,7 @@ function Home({ onHeroPassedChange }) {
       </section>
 
       {/* About Section */}
-      <section id="about" className="max-w-6xl mx-auto px-4 py-16">
+      <section id="about" className="max-w-6xl mx-auto px-4 py-16 scroll-mt-16">
         <motion.h3
           className="text-accentColor text-3xl font-bold text-center mb-12"
           initial={{ opacity: 0 }}
@@ -147,7 +147,7 @@ function Home({ onHeroPassedChange }) {
       </motion.div>
 
       {/* Contact Section */}
-      <section id="contact" className="bg-backGroundColor py-16">
+      <section id="contact" className="bg-backGroundColor py-16 scroll-mt-16">
         <motion.h3
           className="text-accentColor text-3xl font-bold text-center mb-8"
           initial={{ opacity: 0 }}

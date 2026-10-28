@@ -34,6 +34,19 @@ body {
     scrollbar-width: thin;
     scrollbar-color: rgb(75 85 99) transparent;
   }
+
+  /* Route enter transition. Only the starting frame is defined, so the page is fully
+     visible by default even if the browser never runs the animation. */
+  .page-enter {
+    animation: page-enter 0.3s ease-out;
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

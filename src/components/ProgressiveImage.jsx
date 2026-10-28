@@ -1,9 +1,15 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { bestLoadedBelow, getImage, isLoaded, markLoaded, pickVariant } from '../lib/images';
 import useDevicePixelRatio from '../lib/useDevicePixelRatio';
 
-function Layer({ variant, priority }) {
+function Layer({ variant, priority, onLoad }) {
   const [visible, setVisible] = useState(() => isLoaded(variant.src));
+
+  // Already-cached variants are visible immediately; still report them to the parent.
+  useEffect(() => {
+    if (visible) onLoad(variant);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <img
@@ -16,6 +22,7 @@ function Layer({ variant, priority }) {
       onLoad={() => {
         markLoaded(variant.src);
         setVisible(true);
+        onLoad(variant);
       }}
       className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
         visible ? 'opacity-100' : 'opacity-0'
@@ -34,6 +41,8 @@ function Layer({ variant, priority }) {
  * fit="cover": the frame is sized by the caller and the image is cropped to fill it.
  * zoom: extra magnification applied by the caller (e.g. pinch zoom), raising the required resolution.
  * maxDpr: caps the device pixel ratio used for selection, to save bandwidth on less important images.
+ * loadOriginal: once the size-appropriate variant has loaded, also load the original file on top.
+ * onVariantLoad(variant): called whenever a layer (thumb, sized variant or original) finishes loading.
  */
 function ProgressiveImage({
   src,
@@ -44,6 +53,8 @@ function ProgressiveImage({
   zoom = 1,
   maxDpr = Infinity,
   priority = false,
+  loadOriginal = false,
+  onVariantLoad,
   ...rest
 }) {
   const entry = getImage(src);
@@ -51,6 +62,12 @@ function ProgressiveImage({
   const dpr = Math.min(useDevicePixelRatio(), maxDpr);
   const [box, setBox] = useState({ width: 0, height: 0 });
   const maxRequired = useRef({ src, width: 0 });
+  // Re-render when a layer loads, so the original layer can be added after the sized one.
+  const [, layerLoaded] = useReducer((n) => n + 1, 0);
+  const handleLayerLoad = (variant) => {
+    layerLoaded();
+    onVariantLoad?.(variant);
+  };
 
   useLayoutEffect(() => {
     const el = frameRef.current;
@@ -73,7 +90,9 @@ function ProgressiveImage({
 
   const target = box.width > 0 ? pickVariant(entry, maxRequired.current.width) : null;
   const thumb = entry.variants[0];
+  const original = entry.variants[entry.variants.length - 1];
   const base = target && (bestLoadedBelow(entry, target) ?? (target === thumb ? null : thumb));
+  const showOriginal = loadOriginal && target && target !== original && isLoaded(target.src);
 
   return (
     <div
@@ -91,8 +110,9 @@ function ProgressiveImage({
         draggable={false}
         className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl"
       />
-      {base && <Layer key={base.src} variant={base} priority={priority} />}
-      {target && <Layer key={target.src} variant={target} priority={priority} />}
+      {base && <Layer key={base.src} variant={base} priority={priority} onLoad={handleLayerLoad} />}
+      {target && <Layer key={target.src} variant={target} priority={priority} onLoad={handleLayerLoad} />}
+      {showOriginal && <Layer key={original.src} variant={original} onLoad={handleLayerLoad} />}
     </div>
   );
 }
