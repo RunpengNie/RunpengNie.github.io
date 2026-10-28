@@ -1,106 +1,115 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { HiMenu, HiX } from 'react-icons/hi';
+import { scrollBehavior } from '../lib/motion';
 
-function Navbar() {
-  const [isOpaque, setIsOpaque] = useState(false);
+const NAV_HEIGHT = 64;
+
+// `solid` switches the bar from transparent to the accent color (set once the hero is scrolled past).
+function Navbar({ solid }) {
   const [isOpen, setIsOpen] = useState(false);
+  const navRef = useRef(null);
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const toggleMenu = () => setIsOpen(!isOpen);
-
   useEffect(() => {
-    const handleScroll = () => {
-      const triggerEl = document.getElementById('scroll-trigger');
-      if (!triggerEl) {
-        setIsOpaque(false);
-        return;
-      }
-      const rect = triggerEl.getBoundingClientRect();
-      // 当该元素底部完全滑出视口顶部时，导航变不透明
-      if (rect.bottom <= 0) {
-        setIsOpaque(true);
-      } else {
-        setIsOpaque(false);
-      }
+    setIsOpen(false);
+  }, [location.pathname]);
+
+  // Close the mobile menu when tapping outside of it or pressing Escape.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const onPointerDown = (e) => {
+      if (!navRef.current.contains(e.target)) setIsOpen(false);
     };
-
-    window.addEventListener('scroll', handleScroll);
-    // 刷新时初始化判断
-    handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen]);
 
   const handleNavClick = (id) => {
+    setIsOpen(false);
     if (location.pathname === '/') {
       const section = document.getElementById(id);
       if (section) {
-        const yOffset = -64; // 根据导航高度调整
-        const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
+        const y = section.getBoundingClientRect().top + window.scrollY - NAV_HEIGHT;
+        window.scrollTo({ top: y, behavior: scrollBehavior() });
       }
-      setIsOpen(false);
     } else {
       navigate('/', { state: { scrollToId: id } });
-      setIsOpen(false);
     }
   };
 
+  const linkClass = 'inline-flex min-h-11 items-center px-2 transition hover:text-black hover:scale-105 active:scale-95';
+  const mobileLinkClass = `block w-full min-h-11 py-3 text-left text-base transition active:scale-[0.98] ${
+    solid ? 'hover:text-black active:text-black' : 'hover:text-accentColor active:text-accentColor'
+  }`;
+
   return (
     <nav
+      ref={navRef}
       className={`
-        fixed top-0 w-full z-50 transition-colors duration-300
-        ${isOpaque ? 'bg-accentColor text-white shadow-md' : 'bg-transparent text-white'}
+        fixed top-0 w-full z-40 pt-[env(safe-area-inset-top)] transition-colors duration-300
+        ${solid ? 'bg-accentColor text-white shadow-md' : 'bg-transparent text-white'}
       `}
     >
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
         <div className="flex justify-between items-center h-16">
           {/* Logo / Name */}
           <button
+            type="button"
             onClick={() => handleNavClick('home')}
             className={`
-              text-xl font-bold hover:opacity-80 transition-colors duration-300
-              ${isOpaque ? 'text-black' : 'text-transparent'}
+              min-h-11 text-lg sm:text-xl font-bold hover:opacity-80 transition-colors duration-300
+              ${solid ? 'text-black' : 'text-transparent'}
             `}
           >
-            Hi, I am Jerry, nice to meet you
+            <span className="sm:hidden">Jerry Nie</span>
+            <span className="hidden sm:inline">Hi, I am Jerry, nice to meet you</span>
           </button>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-6">
-            <button
-              onClick={() => handleNavClick('home')}
-              className="hover:text-black transition transform hover:scale-105"
-            >
+          <div className="hidden md:flex space-x-4">
+            <button type="button" onClick={() => handleNavClick('home')} className={linkClass}>
               Home
             </button>
-            <button
-              onClick={() => handleNavClick('about')}
-              className="hover:text-black transition transform hover:scale-105"
-            >
+            <button type="button" onClick={() => handleNavClick('about')} className={linkClass}>
               About
             </button>
-            <Link
-              to="/gallery"
-              className="hover:text-black transition transform hover:scale-105"
-            >
+            <Link to="/gallery" className={linkClass}>
               Gallery
             </Link>
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              onClick={toggleMenu}
-              className="text-white hover:text-black focus:outline-none transition transform hover:scale-110"
-              aria-label="Toggle Menu"
-            >
-              ☰
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsOpen((open) => !open)}
+            className="md:hidden -mr-2 flex h-11 w-11 items-center justify-center text-2xl text-white transition hover:text-black active:scale-90"
+            aria-label={isOpen ? 'Close Menu' : 'Open Menu'}
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={isOpen ? 'close' : 'open'}
+                initial={{ opacity: 0, rotate: -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.15 }}
+              >
+                {isOpen ? <HiX /> : <HiMenu />}
+              </motion.span>
+            </AnimatePresence>
+          </button>
         </div>
       </div>
 
@@ -108,33 +117,26 @@ function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className={`md:hidden px-4 pb-4 space-y-2 ${
-              isOpaque ? 'bg-accentColor' : 'bg-backGroundColor'
-            } overflow-hidden`}
+            className={`md:hidden overflow-hidden shadow-lg ${
+              solid ? 'bg-accentColor' : 'bg-backGroundColor'
+            }`}
           >
-            <button
-              onClick={() => handleNavClick('home')}
-              className="block hover:text-black transition transform hover:scale-105"
-            >
-              Home
-            </button>
-            <button
-              onClick={() => handleNavClick('about')}
-              className="block hover:text-black transition transform hover:scale-105"
-            >
-              About
-            </button>
-            <Link
-              to="/gallery"
-              onClick={() => setIsOpen(false)}
-              className="block hover:text-black transition transform hover:scale-105"
-            >
-              Gallery
-            </Link>
+            <div className="pb-2 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
+              <button type="button" onClick={() => handleNavClick('home')} className={mobileLinkClass}>
+                Home
+              </button>
+              <button type="button" onClick={() => handleNavClick('about')} className={mobileLinkClass}>
+                About
+              </button>
+              <Link to="/gallery" onClick={() => setIsOpen(false)} className={mobileLinkClass}>
+                Gallery
+              </Link>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

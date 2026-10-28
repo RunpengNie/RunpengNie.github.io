@@ -1,14 +1,25 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProgressiveImage from '../components/ProgressiveImage';
-import { fitWidth, getImage, pickVariant, preloadImage } from '../lib/images';
+import FullscreenViewer from '../components/FullscreenViewer';
+import { fitWidth, getImage, markLoaded, pickVariant, preloadImage } from '../lib/images';
+import { scrollBehavior } from '../lib/motion';
 import useDevicePixelRatio from '../lib/useDevicePixelRatio';
+import useScrollLock from '../lib/useScrollLock';
 
-// Main viewer height limit, as a fraction of the viewport height (matches 90vh below).
-const VIEWER_MAX_HEIGHT = 0.9;
+// Main viewer height limit, as a fraction of the small viewport height.
+const VIEWER_MAX_HEIGHT = 0.8;
+const SWIPE_THRESHOLD = 60;
+
 const aspectRatio = (src) => {
   const { width, height } = getImage(src);
   return width / height;
+};
+
+const slideVariants = {
+  enter: (direction) => ({ opacity: 0, x: direction >= 0 ? 60 : -60 }),
+  center: { opacity: 1, x: 0 },
+  exit: (direction) => ({ opacity: 0, x: direction >= 0 ? -60 : 60 }),
 };
 
 const categories = [
@@ -94,44 +105,48 @@ function shuffleArray(arr) {
   return a;
 }
 
+const arrowButtonClass =
+  'flex items-center justify-center rounded-full bg-black/50 text-white shadow-lg transition select-none hover:bg-accentColor hover:scale-110 active:scale-95';
+
 function Gallery() {
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPrivacyPopup, setShowPrivacyPopup] = useState(false);
   const [popupShown, setPopupShown] = useState(false);
   const [shuffledPairs, setShuffledPairs] = useState([]);
   const [viewerBox, setViewerBox] = useState({ width: 0, height: 0 });
   const viewerRef = useRef(null);
+  const stripRef = useRef(null);
+  const draggedRef = useRef(false);
   const dpr = useDevicePixelRatio();
 
   const currentCategory = categories[categoryIndex];
+  const count = shuffledPairs.length;
+  const current = shuffledPairs[photoIndex];
 
-  // Switch Category 
-  const prevCategory = () => {
-    const newIndex = (categoryIndex - 1 + categories.length) % categories.length;
-    setCategoryIndex(newIndex);
-    setPhotoIndex(0);
+  useScrollLock(showPrivacyPopup);
+
+  const prevPhoto = useCallback(() => {
+    if (count === 0) return;
+    setDirection(-1);
+    setPhotoIndex((i) => (i - 1 + count) % count);
+  }, [count]);
+
+  const nextPhoto = useCallback(() => {
+    if (count === 0) return;
+    setDirection(1);
+    setPhotoIndex((i) => (i + 1) % count);
+  }, [count]);
+
+  const goToPhoto = (index) => {
+    if (index === photoIndex) return;
+    setDirection(index > photoIndex ? 1 : -1);
+    setPhotoIndex(index);
   };
 
-  const nextCategory = () => {
-    const newIndex = (categoryIndex + 1) % categories.length;
-    setCategoryIndex(newIndex);
-    setPhotoIndex(0);
-  };
-
-  // Switch photos (use shuffledPairs length)
-  const prevPhoto = () => {
-    if (!shuffledPairs || shuffledPairs.length === 0) return;
-    setPhotoIndex((photoIndex - 1 + shuffledPairs.length) % shuffledPairs.length);
-  };
-
-  const nextPhoto = () => {
-    if (!shuffledPairs || shuffledPairs.length === 0) return;
-    setPhotoIndex((photoIndex + 1) % shuffledPairs.length);
-  };
-
-  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
+  const closeFullscreen = useCallback(() => setIsFullscreen(false), []);
 
   // Privacy pop up
   useEffect(() => {
@@ -148,6 +163,7 @@ function Gallery() {
     const pairs = images.map((src, i) => ({ src, desc: descriptions[i] || {} }));
     const shuffled = shuffleArray(pairs);
     setShuffledPairs(shuffled);
+    setDirection(1);
     setPhotoIndex(0);
   }, [categoryIndex]);
 
@@ -166,78 +182,117 @@ function Gallery() {
     };
   }, []);
 
-  // preload ±2 photos from shuffledPairs, at the size the viewer will display them
+  // preload ±2 photos from shuffledPairs, at the size the current view will display them
   useEffect(() => {
-    if (!shuffledPairs || shuffledPairs.length === 0 || viewerBox.width === 0) return;
+    if (count === 0 || viewerBox.width === 0) return;
 
-    const len = shuffledPairs.length;
+    const box = isFullscreen
+      ? { width: window.innerWidth, height: window.innerHeight }
+      : viewerBox;
     const preloadIndices = [
-      (photoIndex - 2 + len) % len,
-      (photoIndex - 1 + len) % len,
-      (photoIndex + 1) % len,
-      (photoIndex + 2) % len,
+      (photoIndex - 2 + count) % count,
+      (photoIndex - 1 + count) % count,
+      (photoIndex + 1) % count,
+      (photoIndex + 2) % count,
     ];
 
     preloadIndices.forEach(i => {
       const entry = getImage(shuffledPairs[i].src);
-      const cssWidth = fitWidth(entry, viewerBox.width, viewerBox.height);
+      const cssWidth = fitWidth(entry, box.width, box.height);
       preloadImage(entry.variants[0].src);
       preloadImage(pickVariant(entry, Math.ceil(cssWidth * dpr)).src);
     });
-  }, [photoIndex, shuffledPairs, viewerBox, dpr]);
+  }, [photoIndex, shuffledPairs, count, viewerBox, isFullscreen, dpr]);
+
+  // Keep the active thumbnail centered in the strip.
+  useEffect(() => {
+    const strip = stripRef.current;
+    const thumb = strip?.querySelector(`[data-index="${photoIndex}"]`);
+    if (!thumb) return;
+    strip.scrollTo({
+      left: thumb.offsetLeft - (strip.clientWidth - thumb.offsetWidth) / 2,
+      behavior: scrollBehavior(),
+    });
+  }, [photoIndex, shuffledPairs]);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-12 flex flex-col items-center">
+    <section className="max-w-7xl mx-auto px-4 pt-20 pb-12 md:pt-24 flex flex-col items-center">
 
-      {/* Category Switch */}
-      <div className="flex items-center justify-center gap-6 mb-8 w-full max-w-xl">
-        <button
-          onClick={prevCategory}
-          aria-label="Previous Category"
-          className="text-accentColor bg-black bg-opacity-50 hover:bg-opacity-80 rounded-full p-3 select-none"
-        >
-          ‹
-        </button>
-
-        <h3 className="text-accentColor text-3xl font-bold text-center select-none">{currentCategory.name}</h3>
-
-        <button
-          onClick={nextCategory}
-          aria-label="Next Category"
-          className="text-accentColor bg-black bg-opacity-50 hover:bg-opacity-80 rounded-full p-3 select-none"
-        >
-          ›
-        </button>
+      {/* Category tabs */}
+      <div role="tablist" aria-label="Photo category" className="mb-6 inline-flex rounded-full bg-white/5 p-1">
+        {categories.map((category, i) => {
+          const selected = i === categoryIndex;
+          return (
+            <button
+              key={category.name}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              onClick={() => setCategoryIndex(i)}
+              className={`relative min-h-11 rounded-full px-5 text-sm font-semibold transition-colors select-none md:px-6 md:text-base ${
+                selected ? 'text-white' : 'text-gray-400 hover:text-white active:text-white'
+              }`}
+            >
+              {selected && (
+                <motion.span
+                  layoutId="category-pill"
+                  className="absolute inset-0 rounded-full bg-accentColor"
+                  transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                />
+              )}
+              <span className="relative">{category.name}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Image Viewer */}
-      <div className="flex items-center justify-center w-full gap-6">
+      <div className="flex items-center justify-center w-full md:gap-6">
         <button
+          type="button"
           onClick={prevPhoto}
           aria-label="Previous Photo"
-          className="text-white text-3xl bg-black/50 hover:bg-accentColor hover:text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110 select-none"
+          className={`hidden md:flex h-14 w-14 flex-none text-3xl ${arrowButtonClass}`}
         >
           ‹
         </button>
 
         <div ref={viewerRef} className="flex-1 min-w-0">
-          <AnimatePresence mode="wait">
-            {shuffledPairs && shuffledPairs[photoIndex] && (
+          <AnimatePresence mode="wait" custom={direction}>
+            {current && (
               <motion.div
-                key={shuffledPairs[photoIndex].src}
+                key={current.src}
                 className="flex justify-center"
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -50 }}
-                transition={{ duration: 0.5 }}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                drag={count > 1 ? 'x' : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.6}
+                onPointerDownCapture={() => {
+                  draggedRef.current = false;
+                }}
+                onDragStart={() => {
+                  draggedRef.current = true;
+                }}
+                onDragEnd={(_, info) => {
+                  const swipe = info.offset.x + info.velocity.x * 0.2;
+                  if (swipe <= -SWIPE_THRESHOLD) nextPhoto();
+                  else if (swipe >= SWIPE_THRESHOLD) prevPhoto();
+                }}
               >
                 <ProgressiveImage
-                  src={shuffledPairs[photoIndex].src}
+                  src={current.src}
                   alt={`${currentCategory.name} image ${photoIndex + 1}`}
-                  onClick={toggleFullscreen}
+                  onClick={() => {
+                    if (!draggedRef.current) setIsFullscreen(true);
+                  }}
                   className="cursor-pointer rounded-lg shadow-lg"
                   style={{
-                    width: `min(100%, calc(90vh * ${aspectRatio(shuffledPairs[photoIndex].src)}))`,
+                    width: `min(100%, calc(${VIEWER_MAX_HEIGHT * 100} * var(--svh) * ${aspectRatio(current.src)}))`,
                   }}
                 />
               </motion.div>
@@ -246,57 +301,104 @@ function Gallery() {
         </div>
 
         <button
+          type="button"
           onClick={nextPhoto}
           aria-label="Next Photo"
-          className="text-white text-3xl bg-black/50 hover:bg-accentColor hover:text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110 select-none"
+          className={`hidden md:flex h-14 w-14 flex-none text-3xl ${arrowButtonClass}`}
         >
           ›
         </button>
       </div>
 
+      {/* Position indicator, with arrow buttons on small screens */}
+      {count > 0 && (
+        <div className="mt-3 flex items-center gap-4">
+          <button
+            type="button"
+            onClick={prevPhoto}
+            aria-label="Previous Photo"
+            className={`md:hidden h-11 w-11 text-2xl ${arrowButtonClass}`}
+          >
+            ‹
+          </button>
+          <span className="min-w-[4.5rem] text-center text-sm tabular-nums text-gray-400" aria-live="polite">
+            {photoIndex + 1} / {count}
+          </span>
+          <button
+            type="button"
+            onClick={nextPhoto}
+            aria-label="Next Photo"
+            className={`md:hidden h-11 w-11 text-2xl ${arrowButtonClass}`}
+          >
+            ›
+          </button>
+        </div>
+      )}
+
       {/* Picture Description */}
-      <div className="mt-4 text-center text-white max-w-xl select-none whitespace-pre-line">
-        {shuffledPairs && shuffledPairs[photoIndex] && (
+      <div className="mt-3 text-center text-white max-w-xl select-none whitespace-pre-line">
+        {current && (
           currentCategory.name === 'Non-people' ? (
-            <div className="text-sm text-gray-300">{shuffledPairs[photoIndex].desc.location}</div>
+            <div className="text-sm text-gray-300">{current.desc.location}</div>
           ) : (
             <>
-              <div className="text-gray-400 italic text-lg mb-1">{shuffledPairs[photoIndex].desc.title}</div>
-              <div className="text-sm text-gray-300">{shuffledPairs[photoIndex].desc.location}</div>
-              <div className="text-sm text-gray-300">Model: {shuffledPairs[photoIndex].desc.model}</div>
+              <div className="text-gray-400 italic text-lg mb-1">{current.desc.title}</div>
+              <div className="text-sm text-gray-300">{current.desc.location}</div>
+              <div className="text-sm text-gray-300">Model: {current.desc.model}</div>
             </>
           )
         )}
       </div>
 
-      {/* Fullscreen Overlay */}
-      {isFullscreen && (
-        <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4"
-          onClick={toggleFullscreen}
-        >
-          {shuffledPairs && shuffledPairs[photoIndex] && (
-            <motion.div
-              key={`fullscreen-${shuffledPairs[photoIndex].src}`}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ProgressiveImage
-                src={shuffledPairs[photoIndex].src}
-                alt={`${currentCategory.name} image ${photoIndex + 1}`}
-                className="rounded-lg shadow-xl cursor-zoom-out"
-                style={{
-                  width: `min(calc(100vw - 2rem), calc((100vh - 2rem) * ${aspectRatio(
-                    shuffledPairs[photoIndex].src
-                  )}))`,
-                }}
-              />
-            </motion.div>
-          )}
+      {/* Thumbnail strip */}
+      {count > 1 && (
+        <div ref={stripRef} className="thin-scrollbar relative mt-6 w-full max-w-4xl overflow-x-auto overscroll-x-contain pb-2">
+          <div className="mx-auto flex w-max gap-2 px-1 py-1">
+            {shuffledPairs.map((pair, i) => {
+              const thumb = getImage(pair.src).variants[0];
+              const active = i === photoIndex;
+              return (
+                <button
+                  key={pair.src}
+                  type="button"
+                  data-index={i}
+                  onClick={() => goToPhoto(i)}
+                  aria-label={`Show photo ${i + 1}`}
+                  aria-current={active}
+                  className={`h-14 w-14 flex-none overflow-hidden rounded-md ring-2 transition md:h-16 md:w-16 ${
+                    active ? 'ring-accentColor opacity-100' : 'ring-transparent opacity-50 hover:opacity-90 active:opacity-90'
+                  }`}
+                >
+                  <img
+                    src={thumb.src}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    draggable={false}
+                    onLoad={() => markLoaded(thumb.src)}
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
+
+      {/* Fullscreen viewer */}
+      <AnimatePresence>
+        {isFullscreen && current && (
+          <FullscreenViewer
+            key="fullscreen"
+            src={current.src}
+            alt={`${currentCategory.name} image ${photoIndex + 1}`}
+            counter={`${photoIndex + 1} / ${count}`}
+            onPrev={prevPhoto}
+            onNext={nextPhoto}
+            onClose={closeFullscreen}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Privacy pop up window */}
       {showPrivacyPopup && (
@@ -306,8 +408,9 @@ function Gallery() {
               To protect the privacy of the models, front-facing portraits of the models are not included.
             </p>
             <button
+              type="button"
               onClick={() => setShowPrivacyPopup(false)}
-              className="px-4 py-2 bg-accentColor text-black rounded hover:opacity-80 transition"
+              className="min-h-11 px-6 py-2 bg-accentColor text-black rounded transition hover:opacity-80 active:opacity-80"
             >
               OK
             </button>

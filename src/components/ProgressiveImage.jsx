@@ -27,33 +27,51 @@ function Layer({ variant, priority }) {
 /**
  * Progressive, resolution-aware image.
  * Layers: inline blurred placeholder -> thumbnail (or a smaller cached size) -> target size.
- * The target is the smallest variant covering (rendered CSS width x devicePixelRatio);
+ * The target is the smallest variant covering (rendered CSS width x devicePixelRatio x zoom);
  * the original file is only used when even the 4K variant is too small.
- * The frame's height comes from the image aspect ratio, so set its width via className/style.
+ *
+ * fit="frame" (default): the frame's height comes from the image aspect ratio, so set its width.
+ * fit="cover": the frame is sized by the caller and the image is cropped to fill it.
+ * zoom: extra magnification applied by the caller (e.g. pinch zoom), raising the required resolution.
+ * maxDpr: caps the device pixel ratio used for selection, to save bandwidth on less important images.
  */
-function ProgressiveImage({ src, alt, className = '', style, onClick, priority = false }) {
+function ProgressiveImage({
+  src,
+  alt,
+  className = '',
+  style,
+  fit = 'frame',
+  zoom = 1,
+  maxDpr = Infinity,
+  priority = false,
+  ...rest
+}) {
   const entry = getImage(src);
   const frameRef = useRef(null);
-  const dpr = useDevicePixelRatio();
-  const [cssWidth, setCssWidth] = useState(0);
+  const dpr = Math.min(useDevicePixelRatio(), maxDpr);
+  const [box, setBox] = useState({ width: 0, height: 0 });
   const maxRequired = useRef({ src, width: 0 });
 
   useLayoutEffect(() => {
     const el = frameRef.current;
     // offsetWidth ignores transforms (e.g. entry scale animations), unlike getBoundingClientRect.
-    const update = () => setCssWidth(el.offsetWidth);
+    const update = () => setBox({ width: el.offsetWidth, height: el.offsetHeight });
     update();
     const observer = new ResizeObserver(update);
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
+  // With "cover" the image can be wider than its frame.
+  const renderedWidth =
+    fit === 'cover' ? Math.max(box.width, box.height * (entry.width / entry.height)) : box.width;
+
   // Never downgrade: once a larger size was needed, keep using it.
   if (maxRequired.current.src !== src) maxRequired.current = { src, width: 0 };
-  const required = Math.ceil(cssWidth * dpr);
+  const required = Math.ceil(renderedWidth * dpr * zoom);
   if (required > maxRequired.current.width) maxRequired.current.width = required;
 
-  const target = cssWidth > 0 ? pickVariant(entry, maxRequired.current.width) : null;
+  const target = box.width > 0 ? pickVariant(entry, maxRequired.current.width) : null;
   const thumb = entry.variants[0];
   const base = target && (bestLoadedBelow(entry, target) ?? (target === thumb ? null : thumb));
 
@@ -62,9 +80,9 @@ function ProgressiveImage({ src, alt, className = '', style, onClick, priority =
       ref={frameRef}
       role="img"
       aria-label={alt}
-      onClick={onClick}
       className={`relative overflow-hidden ${className}`}
-      style={{ aspectRatio: `${entry.width} / ${entry.height}`, ...style }}
+      style={fit === 'frame' ? { aspectRatio: `${entry.width} / ${entry.height}`, ...style } : style}
+      {...rest}
     >
       <img
         src={entry.placeholder}

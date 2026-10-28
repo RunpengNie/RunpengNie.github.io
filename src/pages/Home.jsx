@@ -1,17 +1,22 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaLinkedin, FaGithub } from 'react-icons/fa';
 import ProgressiveImage from '../components/ProgressiveImage';
+import { getImage } from '../lib/images';
+import { scrollBehavior } from '../lib/motion';
 
-function Home() {
+// onHeroPassedChange(true) once the hero subtitle has scrolled above the viewport (used for the navbar).
+function Home({ onHeroPassedChange }) {
   const location = useLocation();
+  const triggerRef = useRef(null);
 
   // Random background
   const bg = useMemo(
     () => (Math.random() < 0.5 ? '/assets/backgroundPic2.jpg' : '/assets/backgroundPic.jpg'),
     []
   );
+  const bgEntry = getImage(bg);
 
   useEffect(() => {
     if (location.state && location.state.scrollToId) {
@@ -19,19 +24,40 @@ function Home() {
       const el = document.getElementById(id);
       if (el) {
         setTimeout(() => {
-          el.scrollIntoView({ behavior: 'smooth' });
+          el.scrollIntoView({ behavior: scrollBehavior() });
         }, 100);
       }
     }
   }, [location.state]);
 
+  useEffect(() => {
+    if (!onHeroPassedChange) return undefined;
+    const observer = new IntersectionObserver(([entry]) => {
+      onHeroPassedChange(!entry.isIntersecting && entry.boundingClientRect.bottom <= 0);
+    });
+    observer.observe(triggerRef.current);
+    return () => {
+      observer.disconnect();
+      onHeroPassedChange(false);
+    };
+  }, [onHeroPassedChange]);
+
   return (
     <>
-      {/* Hero Section */}
-      <section id="home" className="relative w-full">
-        {/* full width, maintaining the original aspect ratio */}
-        <ProgressiveImage src={bg} alt="background" className="w-full block" priority />
-
+      {/* Hero Section: fills the screen on mobile, keeps the photo's aspect ratio from md up */}
+      <section
+        id="home"
+        className="relative w-full overflow-hidden h-[calc(100*var(--svh))] md:h-auto md:aspect-[var(--hero-ratio)]"
+        style={{ '--hero-ratio': `${bgEntry.width} / ${bgEntry.height}` }}
+      >
+        <ProgressiveImage
+          src={bg}
+          alt="background"
+          fit="cover"
+          maxDpr={2}
+          priority
+          className="absolute inset-0 h-full w-full"
+        />
 
         <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
 
@@ -42,10 +68,10 @@ function Home() {
           transition={{ duration: 1 }}
         >
           <div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 text-accentColor">
+            <h1 className="text-[clamp(1.875rem,8vw,3.75rem)] leading-tight font-bold mb-4 text-accentColor">
               Runpeng "Jerry" Nie
             </h1>
-            <h4 id="scroll-trigger" className="text-lg md:text-2xl mb-2">
+            <h4 ref={triggerRef} className="text-[clamp(1rem,4.5vw,1.5rem)] mb-2">
               Software | Travel | Photography
             </h4>
           </div>

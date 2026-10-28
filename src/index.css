@@ -2,11 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 自定义全局样式 */
-body {
-  @apply bg-backGroundColor text-white font-sans;
+/* Global styles */
+
+/* Small/dynamic viewport units, falling back to vh on browsers without svh/dvh support. */
+:root {
+  --svh: 1vh;
+  --dvh: 1vh;
 }
 
-html {
-  scroll-behavior: smooth;
+@supports (height: 1svh) {
+  :root {
+    --svh: 1svh;
+    --dvh: 1dvh;
+  }
+}
+
+body {
+  @apply bg-backGroundColor text-white font-sans;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Thin, dark scrollbar for horizontal strips such as the gallery thumbnails. */
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(75 85 99) transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
