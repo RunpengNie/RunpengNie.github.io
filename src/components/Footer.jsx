@@ -8,7 +8,7 @@ function Footer() {
 
   return (
     <footer className="bg-backGroundColor text-white mt-16 border-t border-gray-700">
-      <div className="max-w-6xl mx-auto pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Copyright */}
         <p className="text-sm">
           © {new Date().getFullYear()} Jerry Nie. All rights reserved.

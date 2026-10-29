@@ -358,7 +358,7 @@ function FullscreenViewer({ src, alt, counter, onPrev, onNext, onClose }) {
         </motion.div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-3 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(1rem,env(safe-area-inset-top))]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-3 p-4">
         <div className="flex min-w-0 items-center gap-2">
           <span className="rounded-full bg-black/50 px-3 py-1 text-sm tabular-nums text-white">
             {counter}

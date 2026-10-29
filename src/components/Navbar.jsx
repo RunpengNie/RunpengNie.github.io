@@ -57,11 +57,11 @@ function Navbar({ solid }) {
     <nav
       ref={navRef}
       className={`
-        fixed top-0 w-full z-40 pt-[env(safe-area-inset-top)] transition-colors duration-300
+        fixed top-0 w-full z-40 transition-colors duration-300
         ${solid ? 'bg-accentColor text-white shadow-md' : 'bg-transparent text-white'}
       `}
     >
-      <div className="max-w-6xl mx-auto pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
+      <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo / Name */}
           <button
@@ -128,7 +128,7 @@ function Navbar({ solid }) {
               solid ? 'bg-accentColor' : 'bg-backGroundColor'
             }`}
           >
-            <div className="pb-2 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
+            <div className="px-4 pb-2">
               <button type="button" onClick={() => handleNavClick('home')} className={mobileLinkClass}>
                 Home
               </button>

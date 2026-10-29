@@ -89,7 +89,7 @@ npm run images    # 只重新生成图片
 - **导航栏的手机菜单**：展开和收起用透明度 + 位移动画，不要改成动画 `height: 'auto'`。framer-motion 测量 `auto` 高度时会重置页面滚动位置，导致点击菜单项后的平滑滚动被打断。
 - **通用**：
   - 可点击区域至少 44×44px；开启 Tailwind 的 `hoverOnlyWhenSupported`，触屏设备上不会出现残留的 hover 样式，触屏反馈用 `active:` 样式。
-  - 适配刘海屏安全区域（`viewport-fit=cover` + `env(safe-area-inset-*)`），并设置了 `theme-color`。
+  - 不使用 `viewport-fit=cover`，所以浏览器报告的安全区（`env(safe-area-inset-*)`）都是 0，iPhone 会自动让网页避开刘海，不需要额外留白。之前用过 `cover`：Via 等部分安卓浏览器即使网页在地址栏下方、没被状态栏挡住，也会把状态栏高度（约 39px）报告成顶部安全区，导航栏因此多出一行空白。设置了 `theme-color`，让手机浏览器顶栏颜色和网站一致。
   - 系统开启“减少动画”时，关闭平滑滚动，过渡动画缩短到几乎为零，framer-motion 也会跳过位移类动画（`MotionConfig reducedMotion="user"`）。
   - 视口高度用 `svh`/`dvh`，避免 iOS Safari 地址栏伸缩时布局跳动；不支持的浏览器回退到 `vh`（见 `index.css` 中的 `--svh` / `--dvh`）。
 
