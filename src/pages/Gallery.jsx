@@ -46,6 +46,7 @@ const categories = [
       '/assets/non-portrait/17.jpg',
       '/assets/non-portrait/18.jpg',
       '/assets/non-portrait/19.jpg',
+      '/assets/non-portrait/20.jpg',
     ],
     descriptions: [
       { location: 'Bird Rock, CA, United States' },
@@ -56,7 +57,7 @@ const categories = [
       { location: 'Fog Harbor Fish House, CA, United States' },
       { location: 'Yunnan, China' },
       { location: 'Longs Peak, CO, United States' },
-      { location: 'Olympic National Park/Seattle/Bellevue, WA, United States' },
+      { location: 'Sipsongpanna, Yunnan, China' },
       { location: 'University of Colorado Boulder, CO, United States' },
       { location: 'Minneapolis, MN, United States' },
       { location: '44.783949°N 117.813169°W, Oregon, United States' },
@@ -67,6 +68,7 @@ const categories = [
       { location: 'San Juan, PR, United States' },
       { location: 'San Juan, PR, United States' },
       { location: 'Seattle/Bellevue, WA, United States' },
+      { location: 'Sipsongpanna, Yunnan, China' },
     ],
   },
   {
@@ -82,6 +84,7 @@ const categories = [
       '/assets/portrait/8.jpg',
       '/assets/portrait/9.jpg',
       '/assets/portrait/10.jpg',
+      '/assets/portrait/11.jpg',
     ],
     descriptions: [
       { title: '花间佳人', location: 'Olalla Canyon, WA, United States', model: 'Iris C.' },
@@ -89,11 +92,12 @@ const categories = [
       { title: 'Light and Shadow', location: '37.501311°N 122.472303°W, CA, United States', model: 'Vincent X.' },
       { title: 'Serenity Afloat', location: 'Lake Washington, WA, United States', model: 'Jerry N.' },
       { title: 'Climber', location: 'Hurricane Ridge, WA, United States', model: 'Tony L.' },
-      { title: 'Lakeside Glance', location: 'Sipsong Panna, Yunnan, China', model: 'Yuxin Z.' },
+      { title: 'Lakeside Glance', location: 'Sipsongpanna, Yunnan, China', model: 'Yuxin Z.' },
       { title: 'Garita Gaze', location: 'San Juan, PR, United States', model: 'Tony L.' },
       { title: 'Swing', location: 'Vieques, PR, United States', model: 'LL.' },
       { title: 'Public Storage', location: 'Seattle, WA, United States', model: 'N/A' },
-      { title: 'Breathe in Blue', location: 'Sipsong Panna, Yunnan, China', model: 'Dr. Jenny Z.' },
+      { title: 'Breathe in Blue', location: 'Sipsongpanna, Yunnan, China', model: 'Dr. Jenny Z.' },
+      { title: '桜の下で', location: 'University of Washington, WA, United States', model: 'N/A' },
     ],
   },
 ];
