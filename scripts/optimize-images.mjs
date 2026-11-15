@@ -25,7 +25,7 @@ const VARIANTS = [
 ];
 const PLACEHOLDER_LONG_EDGE = 24;
 // Bump to force regeneration of every image when encoding settings change.
-const ENCODER_VERSION = 1;
+const ENCODER_VERSION = 2;
 
 const SUPPORTED_EXT = new Set(['.jpg', '.jpeg', '.png']);
 const toPosix = (p) => p.split(path.sep).join('/');
@@ -62,7 +62,9 @@ async function fileExists(file) {
   }
 }
 
-async function processImage(file, key) {
+// `version` (a short source hash) goes into every URL, so a replaced photo gets new URLs
+// and browsers never show a stale cached copy.
+async function processImage(file, key, version) {
   const meta = await sharp(file).metadata();
   // EXIF orientations 5-8 rotate the image by 90°, swapping width and height.
   const rotated = meta.orientation >= 5;
@@ -80,7 +82,7 @@ async function processImage(file, key) {
   for (const v of VARIANTS) {
     // Skip variants that would not be smaller than the original (no upscaling).
     if (v.name !== 'thumb' && v.longEdge >= longEdge) continue;
-    const outFile = `${outBase}-${v.name}.webp`;
+    const outFile = `${outBase}-${v.name}.${version}.webp`;
     const info = await base()
       .resize(fit(v.longEdge))
       .webp({ quality: v.quality, effort: 5 })
@@ -89,7 +91,7 @@ async function processImage(file, key) {
   }
 
   const stat = await fs.stat(file);
-  variants.push({ name: 'original', src: publicUrl(file), width, height, bytes: stat.size });
+  variants.push({ name: 'original', src: `${publicUrl(file)}?v=${version}`, width, height, bytes: stat.size });
 
   const placeholderBuf = await base()
     .resize(fit(PLACEHOLDER_LONG_EDGE))
@@ -134,7 +136,7 @@ async function main() {
     }
 
     const started = Date.now();
-    manifest[key] = { hash, ...(await processImage(file, key)) };
+    manifest[key] = { hash, ...(await processImage(file, key, hash.slice(0, 8))) };
     generated++;
     console.log(`[images] ${key} (${((Date.now() - started) / 1000).toFixed(1)}s)`);
   }

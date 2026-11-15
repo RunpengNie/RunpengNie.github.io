@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { HiPhotograph, HiViewGrid } from 'react-icons/hi';
 import ProgressiveImage from '../components/ProgressiveImage';
 import FullscreenViewer from '../components/FullscreenViewer';
 import { fitWidth, getImage, markLoaded, pickVariant, preloadImage } from '../lib/images';
@@ -24,7 +25,7 @@ const slideVariants = {
 
 const categories = [
   {
-    name: 'Non-people',
+    name: 'Non-portraits',
     images: [
       '/assets/landscape/1.jpg',
       '/assets/landscape/2.jpg',
@@ -69,7 +70,7 @@ const categories = [
     ],
   },
   {
-    name: 'People',
+    name: 'Portraits',
     images: [
       '/assets/portrait/1.jpg',
       '/assets/portrait/2.jpg',
@@ -110,6 +111,7 @@ const arrowButtonClass =
 
 function Gallery() {
   const [categoryIndex, setCategoryIndex] = useState(0);
+  const [view, setView] = useState('slide');
   const [photoIndex, setPhotoIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -150,7 +152,7 @@ function Gallery() {
 
   // Privacy pop up
   useEffect(() => {
-    if (currentCategory.name === 'People' && !popupShown) {
+    if (currentCategory.name === 'Portraits' && !popupShown) {
       setShowPrivacyPopup(true);
       setPopupShown(true);
     }
@@ -184,11 +186,10 @@ function Gallery() {
 
   // preload ±2 photos from shuffledPairs, at the size the current view will display them
   useEffect(() => {
-    if (count === 0 || viewerBox.width === 0) return;
-
     const box = isFullscreen
       ? { width: window.innerWidth, height: window.innerHeight }
       : viewerBox;
+    if (count === 0 || box.width === 0) return;
     const preloadIndices = [
       (photoIndex - 2 + count) % count,
       (photoIndex - 1 + count) % count,
@@ -218,8 +219,9 @@ function Gallery() {
   return (
     <section className="max-w-7xl mx-auto px-4 pt-20 pb-12 md:pt-24 flex flex-col items-center">
 
+      <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
       {/* Category tabs */}
-      <div role="tablist" aria-label="Photo category" className="mb-6 inline-flex rounded-full bg-white/5 p-1">
+      <div role="tablist" aria-label="Photo category" className="inline-flex rounded-full bg-white/5 p-1">
         {categories.map((category, i) => {
           const selected = i === categoryIndex;
           return (
@@ -245,6 +247,31 @@ function Gallery() {
           );
         })}
       </div>
+
+      {/* View toggle: slideshow / grid overview */}
+      <div className="inline-flex rounded-full bg-white/5 p-1" role="group" aria-label="View">
+        {[
+          { id: 'slide', label: 'Slideshow', Icon: HiPhotograph },
+          { id: 'grid', label: 'Grid', Icon: HiViewGrid },
+        ].map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            type="button"
+            aria-label={label}
+            aria-pressed={view === id}
+            onClick={() => setView(id)}
+            className={`flex h-11 w-11 items-center justify-center rounded-full text-xl transition-colors ${
+              view === id ? 'bg-white/15 text-white' : 'text-gray-400 hover:text-white active:text-white'
+            }`}
+          >
+            <Icon />
+          </button>
+        ))}
+      </div>
+      </div>
+
+      {/* Slideshow. Kept mounted (just hidden) in grid view so the viewer size observer keeps working. */}
+      <div className={view === 'slide' ? 'contents' : 'hidden'}>
 
       {/* Image Viewer */}
       <div className="flex items-center justify-center w-full md:gap-6">
@@ -290,7 +317,7 @@ function Gallery() {
                   onClick={() => {
                     if (!draggedRef.current) setIsFullscreen(true);
                   }}
-                  className="cursor-pointer rounded-lg shadow-lg"
+                  className="cursor-pointer rounded-sm"
                   style={{
                     width: `min(100%, calc(${VIEWER_MAX_HEIGHT * 100} * var(--svh) * ${aspectRatio(current.src)}))`,
                   }}
@@ -338,7 +365,7 @@ function Gallery() {
       {/* Picture Description */}
       <div className="mt-3 text-center text-white max-w-xl select-none whitespace-pre-line">
         {current && (
-          currentCategory.name === 'Non-people' ? (
+          currentCategory.name === 'Non-portraits' ? (
             <div className="text-sm text-gray-300">{current.desc.location}</div>
           ) : (
             <>
@@ -365,7 +392,7 @@ function Gallery() {
                   onClick={() => goToPhoto(i)}
                   aria-label={`Show photo ${i + 1}`}
                   aria-current={active}
-                  className={`h-14 w-14 flex-none overflow-hidden rounded-md ring-2 transition md:h-16 md:w-16 ${
+                  className={`h-14 w-14 flex-none overflow-hidden rounded-sm ring-2 transition md:h-16 md:w-16 ${
                     active ? 'ring-accentColor opacity-100' : 'ring-transparent opacity-50 hover:opacity-90 active:opacity-90'
                   }`}
                 >
@@ -382,6 +409,28 @@ function Gallery() {
               );
             })}
           </div>
+        </div>
+      )}
+
+      </div>
+
+      {/* Grid overview (masonry columns); a photo opens in the fullscreen viewer */}
+      {view === 'grid' && (
+        <div className="w-full columns-2 gap-3 md:columns-3 lg:columns-4">
+          {shuffledPairs.map((pair, i) => (
+            <button
+              key={pair.src}
+              type="button"
+              onClick={() => {
+                setPhotoIndex(i);
+                setIsFullscreen(true);
+              }}
+              aria-label={`Open photo ${i + 1}`}
+              className="mb-3 block w-full break-inside-avoid overflow-hidden rounded-sm transition-opacity hover:opacity-85 active:opacity-85"
+            >
+              <ProgressiveImage src={pair.src} alt={`${currentCategory.name} image ${i + 1}`} lazy className="w-full" />
+            </button>
+          ))}
         </div>
       )}
 

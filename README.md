@@ -12,6 +12,7 @@ Runpeng "Jerry" Nie 的个人网站，包括个人介绍和摄影作品集，部
 | 样式 | Tailwind CSS 3（PostCSS + Autoprefixer） |
 | 动画 | framer-motion |
 | 图标 | react-icons |
+| 字体 | Inter，通过 `@fontsource-variable/inter` 打包进网站，不依赖 Google Fonts |
 | 图片处理 | sharp（仅在构建时使用） |
 
 ## 快速开始
@@ -78,8 +79,10 @@ npm run images    # 只重新生成图片
 - **导航栏**：窄屏显示简短名称；手机菜单的图标在 ☰ 和 ✕ 之间切换，点击菜单外部、按 Esc 或切换页面时自动关闭。
 - **Gallery**：
   - 手机上隐藏图片两侧的箭头，改为左右滑动切换，位置指示（如 `3 / 18`）两侧也有箭头按钮。
-  - 类别切换用标签按钮。
-  - 底部有缩略图条，当前缩略图自动居中。
+  - 类别（Non-portraits / Portraits）切换用标签按钮；旁边的按钮可以在幻灯片和网格总览之间切换，默认是幻灯片。
+  - 网格总览用 CSS 多栏（`columns-*`）做瀑布流，图片懒加载，点任意一张进入全屏查看器。
+  - 幻灯片底部有缩略图条，当前缩略图自动居中。
+  - 照片用很小的圆角（`rounded-sm`），不加阴影。
   - 弹层打开时锁定页面滚动。
 - **全屏查看器**（`FullscreenViewer`）：
   - 先显示适合屏幕的尺寸，在当前照片停留 400ms 后再加载原图，加载完成后替换显示；快速翻页时不会同时下载多张原图。顶部会显示原图的加载状态（文件大小 / 分辨率）。
@@ -119,6 +122,7 @@ npm run images    # 只重新生成图片
 - 根据 EXIF 方向自动旋转，统一转换为 sRGB。生成的文件不含 EXIF，原图保持不变。
 - 每张图还会生成一个 24px 的模糊占位图，以 base64 写进 manifest，随 JS 一起下发。
 - 生成结果写入 `public/assets/generated/` 和 `src/data/imageManifest.json`。manifest 记录了每个尺寸的路径、宽高和体积，以及原图的 SHA-1 值。
+- 每个 URL 都带上原图 SHA-1 的前 8 位：生成文件名形如 `1-1080p.4cd7f565.webp`，原图则加上 `?v=4cd7f565`。替换照片后 URL 会跟着变，访客的浏览器不会显示缓存里的旧图。
 - 生成是增量的：原图的 SHA-1 没变、生成的文件也都在时，直接跳过。原图删除后，对应的生成文件会被一起清理。修改编码参数后，需要把脚本里的 `ENCODER_VERSION` 加 1，或者运行 `npm run images -- --force` 全部重新生成。
 
 ### 运行时：根据设备选择尺寸
@@ -141,11 +145,12 @@ npm run images    # 只重新生成图片
 - **加载原图**（`loadOriginal`）：目标尺寸加载完成后，再在最上层叠加原图；可以用 `onVariantLoad` 回调得知各层（包括原图）何时加载完成。
 - 首页背景图设置了 `fetchpriority="high"`，优先加载；它还设置了 `maxDpr={2}`，按最多 2 倍像素比选择尺寸。因为手机上背景图被裁切放大、还盖着半透明遮罩，按 3 倍算会加载原图，多出来的清晰度看不出来。
 
-## 添加照片
+## 添加或替换照片
 
 1. 把 JPG 或 PNG 放进 `public/assets/landscape/` 或 `public/assets/portrait/`。RAW 格式（如 `.dng`）不支持，需要先导出成 JPG。
-2. 在 `src/pages/Gallery.jsx` 的 `categories` 中添加图片路径和对应描述。`images` 和 `descriptions` 按下标一一对应。
-3. 运行 `npm run dev` 或 `npm run build`，会自动生成各个尺寸。把 `public/assets/generated/` 和 `src/data/imageManifest.json` 一起提交。
+   - 替换照片：直接用同名文件覆盖原图即可，代码不用改；如果地点、标题等变了，再改对应的描述。
+2. 新增照片：在 `src/pages/Gallery.jsx` 的 `categories` 中添加图片路径和对应描述。`images` 和 `descriptions` 按下标一一对应。
+3. 运行 `npm run dev` 或 `npm run build`，会自动生成各个尺寸；被替换或删除的旧版本生成文件会被自动清理。把 `public/assets/generated/` 和 `src/data/imageManifest.json` 一起提交。
 
 ## 已知问题
 

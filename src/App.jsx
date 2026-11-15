@@ -7,6 +7,8 @@ import Home from './pages/Home';
 import Gallery from './pages/Gallery';
 import { scrollToTopInstantly } from './lib/motion';
 
+const PAGE_TITLES = { '/': 'Jerry Nie', '/gallery': 'Jerry Nie - Gallery' };
+
 function App() {
   const location = useLocation();
   const [navSolid, setNavSolid] = useState(false);
@@ -14,6 +16,7 @@ function App() {
   // Start each page at the top. Home's own "scroll to section" logic runs after this.
   useLayoutEffect(() => {
     scrollToTopInstantly();
+    document.title = PAGE_TITLES[location.pathname] ?? 'Jerry Nie';
   }, [location.pathname]);
 
   return (

@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useReducer, useRef, useState } from 
 import { bestLoadedBelow, getImage, isLoaded, markLoaded, pickVariant } from '../lib/images';
 import useDevicePixelRatio from '../lib/useDevicePixelRatio';
 
-function Layer({ variant, priority, onLoad }) {
+function Layer({ variant, priority, lazy, onLoad }) {
   const [visible, setVisible] = useState(() => isLoaded(variant.src));
 
   // Already-cached variants are visible immediately; still report them to the parent.
@@ -18,6 +18,7 @@ function Layer({ variant, priority, onLoad }) {
       aria-hidden="true"
       draggable={false}
       decoding="async"
+      loading={lazy ? 'lazy' : undefined}
       fetchpriority={priority ? 'high' : undefined}
       onLoad={() => {
         markLoaded(variant.src);
@@ -42,6 +43,7 @@ function Layer({ variant, priority, onLoad }) {
  * zoom: extra magnification applied by the caller (e.g. pinch zoom), raising the required resolution.
  * maxDpr: caps the device pixel ratio used for selection, to save bandwidth on less important images.
  * loadOriginal: once the size-appropriate variant has loaded, also load the original file on top.
+ * lazy: defer loading until the image is near the viewport (for long grids).
  * onVariantLoad(variant): called whenever a layer (thumb, sized variant or original) finishes loading.
  */
 function ProgressiveImage({
@@ -54,6 +56,7 @@ function ProgressiveImage({
   maxDpr = Infinity,
   priority = false,
   loadOriginal = false,
+  lazy = false,
   onVariantLoad,
   ...rest
 }) {
@@ -110,8 +113,8 @@ function ProgressiveImage({
         draggable={false}
         className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl"
       />
-      {base && <Layer key={base.src} variant={base} priority={priority} onLoad={handleLayerLoad} />}
-      {target && <Layer key={target.src} variant={target} priority={priority} onLoad={handleLayerLoad} />}
+      {base && <Layer key={base.src} variant={base} priority={priority} lazy={lazy} onLoad={handleLayerLoad} />}
+      {target && <Layer key={target.src} variant={target} priority={priority} lazy={lazy} onLoad={handleLayerLoad} />}
       {showOriginal && <Layer key={original.src} variant={original} onLoad={handleLayerLoad} />}
     </div>
   );
