@@ -92,14 +92,24 @@ function Home({ onHeroPassedChange }) {
         </div>
       </section>
 
-      {/* About Section: photo beside the text from md up, everything left-aligned */}
-      <section id="about" className="max-w-4xl mx-auto px-4 py-16 scroll-mt-16">
-        <div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-12">
+      {/* About Section */}
+      <section id="about" className="max-w-6xl mx-auto px-4 py-16 scroll-mt-16">
+        <motion.h3
+          className="text-accentColor text-3xl font-bold text-center mb-12"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          About Me
+        </motion.h3>
+
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
           {/* profile pic */}
           <motion.img
             src="/assets/profilepic.jpg"
             alt="Profile"
-            className="h-40 w-40 flex-none self-center rounded-full border-4 border-accentColor object-cover shadow-lg md:h-56 md:w-56 md:self-start"
+            className="w-48 h-48 object-contain rounded-full border-4 border-accentColor shadow-lg"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
@@ -108,16 +118,15 @@ function Home({ onHeroPassedChange }) {
 
           {/* self intro */}
           <motion.div
-            className="max-w-prose text-white text-lg leading-relaxed"
+            className="text-white text-lg leading-relaxed"
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-accentColor text-3xl font-bold mb-6">About Me</h2>
-            <p className="text-2xl font-bold leading-snug mb-4">
+            <h1 className="text-2xl font-bold mb-4">
               Professional Stack Overflow copy-paster, part-time bug creator, and full-time ChatGPT prompter.
-            </p>
+            </h1>
             <p className="mb-4">
               Terrible English speaker and an authentic H1B indentured servant, just waiting for the next round of
               layoffs. Thanks to the U.S. job market, I’ve gained extensive experience in handling layoffs, employers
@@ -136,19 +145,24 @@ function Home({ onHeroPassedChange }) {
               but I absolutely hate washing dishes. And I’m a big fan of sleep (I love my bed),
               even though I’m constantly staying up too late.
             </p>
-
-            {/* Special Note */}
-            <p className="mt-8 border-l-4 border-accentColor bg-accentColor/10 px-5 py-4 rounded-r-md italic">
-              Oh, and by the way, I’m open to any opportunities — so if you want to hire me and you’re offering
-              sponsorship, feel free to contact me.
-            </p>
           </motion.div>
         </div>
       </section>
 
+      {/* Special Note */}
+      <motion.div
+        className="max-w-3xl mx-auto mt-8 mb-12 px-6 py-4 bg-accentColor/10 border-l-4 border-accentColor rounded-md text-center italic text-white text-lg shadow-sm"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+      >
+        Oh, and by the way, I’m open to any opportunities — so if you want to hire me and you’re offering sponsorship, feel free to contact me.
+      </motion.div>
+
       {/* Contact Section */}
       <section id="contact" className="bg-backGroundColor py-16 scroll-mt-16">
-        <motion.h2
+        <motion.h3
           className="text-accentColor text-3xl font-bold text-center mb-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -156,7 +170,7 @@ function Home({ onHeroPassedChange }) {
           viewport={{ once: true }}
         >
           Contact Me
-        </motion.h2>
+        </motion.h3>
         <div className="flex justify-center gap-8">
           <a
             href="https://www.linkedin.com/in/runpeng-nie/"
