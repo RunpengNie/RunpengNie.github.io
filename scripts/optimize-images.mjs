@@ -14,7 +14,7 @@ const OUTPUT_DIR = path.join(ASSETS_DIR, 'generated');
 const MANIFEST_PATH = path.join(ROOT, 'src/data/imageManifest.json');
 
 // Paths relative to public/assets. Directories are scanned for jpg/jpeg/png.
-const SOURCES = ['backgroundPic.jpg', 'backgroundPic2.jpg', 'landscape/', 'portrait/'];
+const SOURCES = ['backgroundPic.jpg', 'backgroundPic2.jpg', 'non-portrait/', 'portrait/'];
 
 // Sizes are defined by the long edge of the image.
 const VARIANTS = [
@@ -152,6 +152,7 @@ async function main() {
       if (entry.isDirectory()) await walk(abs);
       else if (!referenced.has(abs)) await fs.rm(abs);
     }
+    if (dir !== OUTPUT_DIR && (await fs.readdir(dir)).length === 0) await fs.rmdir(dir);
   };
   await walk(OUTPUT_DIR);
 

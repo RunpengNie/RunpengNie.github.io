@@ -35,8 +35,12 @@ npm run images    # 只重新生成图片
 ├── .github/workflows/deploy.yml   # push 到 main 后自动构建并部署到 GitHub Pages
 ├── scripts/optimize-images.mjs    # 图片多尺寸生成脚本
 ├── public/
+│   ├── favicon.svg                # JN 图标（源文件）
+│   ├── favicon.ico                # 由 favicon.svg 生成的 32px 图标，兼容旧浏览器
+│   ├── apple-touch-icon.png       # 由 favicon.svg 生成的 iOS 主屏幕图标（180px）
+│   ├── og-image.jpg               # 链接分享预览图（1200×630，由 backgroundPic.jpg 裁切）
 │   └── assets/
-│       ├── landscape/             # 作品集：风景（原图）
+│       ├── non-portrait/          # 作品集：非人像（原图）
 │       ├── portrait/              # 作品集：人像（原图）
 │       ├── generated/             # 脚本生成的多尺寸 WebP，不要手动修改
 │       ├── backgroundPic*.jpg     # 首页背景图（原图）
@@ -147,10 +151,15 @@ npm run images    # 只重新生成图片
 
 ## 添加或替换照片
 
-1. 把 JPG 或 PNG 放进 `public/assets/landscape/` 或 `public/assets/portrait/`。RAW 格式（如 `.dng`）不支持，需要先导出成 JPG。
+1. 把 JPG 或 PNG 放进 `public/assets/non-portrait/` 或 `public/assets/portrait/`。RAW 格式（如 `.dng`）不支持，需要先导出成 JPG。
    - 替换照片：直接用同名文件覆盖原图即可，代码不用改；如果地点、标题等变了，再改对应的描述。
 2. 新增照片：在 `src/pages/Gallery.jsx` 的 `categories` 中添加图片路径和对应描述。`images` 和 `descriptions` 按下标一一对应。
 3. 运行 `npm run dev` 或 `npm run build`，会自动生成各个尺寸；被替换或删除的旧版本生成文件会被自动清理。把 `public/assets/generated/` 和 `src/data/imageManifest.json` 一起提交。
+
+## 图标与分享预览图
+
+- `favicon.ico`、`apple-touch-icon.png` 和 `og-image.jpg` 是用 sharp 一次性生成后提交的，构建时不会重新生成。修改 `favicon.svg` 或想换分享图时，需要手动重新生成。
+- `index.html` 里的 `og:*` 标签决定在 LinkedIn、微信、iMessage 等地方分享链接时显示的卡片。`og:image` 必须写完整的网址（`https://runpengnie.github.io/og-image.jpg`）。
 
 ## 已知问题
 

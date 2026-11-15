@@ -27,25 +27,25 @@ const categories = [
   {
     name: 'Non-portraits',
     images: [
-      '/assets/landscape/1.jpg',
-      '/assets/landscape/2.jpg',
-      '/assets/landscape/3.jpg',
-      '/assets/landscape/4.jpg',
-      '/assets/landscape/5.jpg',
-      '/assets/landscape/6.jpg',
-      '/assets/landscape/7.jpg',
-      '/assets/landscape/8.jpg',
-      '/assets/landscape/9.jpg',
-      '/assets/landscape/10.jpg',
-      '/assets/landscape/11.jpg',
-      '/assets/landscape/12.jpg',
-      '/assets/landscape/13.jpg',
-      // '/assets/landscape/14.dng', need more work here
-      '/assets/landscape/15.jpg',
-      '/assets/landscape/16.jpg',
-      '/assets/landscape/17.jpg',
-      '/assets/landscape/18.jpg',
-      '/assets/landscape/19.jpg',
+      '/assets/non-portrait/1.jpg',
+      '/assets/non-portrait/2.jpg',
+      '/assets/non-portrait/3.jpg',
+      '/assets/non-portrait/4.jpg',
+      '/assets/non-portrait/5.jpg',
+      '/assets/non-portrait/6.jpg',
+      '/assets/non-portrait/7.jpg',
+      '/assets/non-portrait/8.jpg',
+      '/assets/non-portrait/9.jpg',
+      '/assets/non-portrait/10.jpg',
+      '/assets/non-portrait/11.jpg',
+      '/assets/non-portrait/12.jpg',
+      '/assets/non-portrait/13.jpg',
+      // '/assets/non-portrait/14.dng', need more work here
+      '/assets/non-portrait/15.jpg',
+      '/assets/non-portrait/16.jpg',
+      '/assets/non-portrait/17.jpg',
+      '/assets/non-portrait/18.jpg',
+      '/assets/non-portrait/19.jpg',
     ],
     descriptions: [
       { location: 'Bird Rock, CA, United States' },
@@ -81,6 +81,7 @@ const categories = [
       '/assets/portrait/7.jpg',
       '/assets/portrait/8.jpg',
       '/assets/portrait/9.jpg',
+      '/assets/portrait/10.jpg',
     ],
     descriptions: [
       { title: '花间佳人', location: 'Olalla Canyon, WA, United States', model: 'Iris C.' },
@@ -88,10 +89,11 @@ const categories = [
       { title: 'Light and Shadow', location: '37.501311°N 122.472303°W, CA, United States', model: 'Vincent X.' },
       { title: 'Serenity Afloat', location: 'Lake Washington, WA, United States', model: 'Jerry N.' },
       { title: 'Climber', location: 'Hurricane Ridge, WA, United States', model: 'Tony L.' },
-      { title: 'Lost', location: 'Strat/Stratosphere, NV, United States', model: 'Yuxin Z.' },
+      { title: 'Lakeside Glance', location: 'Sipsong Panna, Yunnan, China', model: 'Yuxin Z.' },
       { title: 'Garita Gaze', location: 'San Juan, PR, United States', model: 'Tony L.' },
       { title: 'Swing', location: 'Vieques, PR, United States', model: 'LL.' },
       { title: 'Public Storage', location: 'Seattle, WA, United States', model: 'N/A' },
+      { title: 'Breathe in Blue', location: 'Sipsong Panna, Yunnan, China', model: 'Dr. Jenny Z.' },
     ],
   },
 ];
@@ -217,7 +219,7 @@ function Gallery() {
   }, [photoIndex, shuffledPairs]);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 pt-20 pb-12 md:pt-24 flex flex-col items-center">
+    <section className="max-w-7xl mx-auto px-4 pt-20 pb-16 md:pt-24 flex flex-col items-center">
 
       <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
       {/* Category tabs */}
@@ -451,15 +453,19 @@ function Gallery() {
 
       {/* Privacy pop up window */}
       {showPrivacyPopup && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-          <div className="bg-gray-900 rounded-lg p-6 max-w-sm text-center shadow-lg">
-            <p className="text-white mb-4 text-sm leading-relaxed">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="max-w-sm rounded-xl border border-white/15 bg-white/10 p-6 text-center shadow-2xl shadow-black/40 backdrop-blur-md"
+          >
+            <p className="mb-5 text-sm leading-relaxed text-gray-100">
               To protect the privacy of the models, front-facing portraits of the models are not included.
             </p>
             <button
               type="button"
               onClick={() => setShowPrivacyPopup(false)}
-              className="min-h-11 px-6 py-2 bg-accentColor text-white rounded transition hover:opacity-80 active:opacity-80"
+              className="min-h-11 rounded-full bg-accentColor px-8 py-2 text-white transition hover:opacity-85 active:opacity-85"
             >
               OK
             </button>

@@ -11,7 +11,7 @@ export function isLoaded(src) {
   return loadedSrcs.has(src);
 }
 
-// Accepts "/assets/landscape/1.jpg" or "landscape/1.jpg".
+// Accepts "/assets/non-portrait/1.jpg" or "non-portrait/1.jpg".
 export function getImage(path) {
   const key = path.replace(/^\/?assets\//, '').replace(/^\//, '');
   const entry = manifest[key];

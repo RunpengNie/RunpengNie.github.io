@@ -67,7 +67,7 @@ function Home({ onHeroPassedChange }) {
           className="absolute inset-0 z-10 flex items-center justify-center text-center px-4 text-white"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
+          transition={{ duration: 0.8 }}
         >
           <div>
             <h1 className="text-[clamp(1.875rem,8vw,3.75rem)] leading-tight font-bold mb-4 text-accentColor">
@@ -98,7 +98,7 @@ function Home({ onHeroPassedChange }) {
           className="text-accentColor text-3xl font-bold text-center mb-12"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
           About Me
@@ -112,7 +112,7 @@ function Home({ onHeroPassedChange }) {
             className="w-48 h-48 object-contain rounded-full border-4 border-accentColor shadow-lg"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           />
 
@@ -121,7 +121,7 @@ function Home({ onHeroPassedChange }) {
             className="text-white text-lg leading-relaxed"
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
             <h1 className="text-2xl font-bold mb-4">
@@ -151,42 +151,44 @@ function Home({ onHeroPassedChange }) {
 
       {/* Special Note */}
       <motion.div
-        className="max-w-3xl mx-auto mt-8 mb-12 px-6 py-4 bg-accentColor/10 border-l-4 border-accentColor rounded-md text-center italic text-white text-lg shadow-sm"
+        className="max-w-3xl mx-auto px-6 py-4 bg-accentColor/10 border-l-4 border-accentColor rounded-md text-center italic text-white text-lg shadow-sm"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5 }}
         viewport={{ once: true }}
       >
         Oh, and by the way, I’m open to any opportunities — so if you want to hire me and you’re offering sponsorship, feel free to contact me.
       </motion.div>
 
       {/* Contact Section */}
-      <section id="contact" className="bg-backGroundColor py-16 scroll-mt-16">
+      <section id="contact" className="bg-backGroundColor px-4 py-16 scroll-mt-16">
         <motion.h3
           className="text-accentColor text-3xl font-bold text-center mb-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
           Contact Me
         </motion.h3>
-        <div className="flex justify-center gap-8">
+        <div className="flex justify-center gap-6">
           <a
             href="https://www.linkedin.com/in/runpeng-nie/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-400 hover:text-accentColor transition transform hover:scale-110"
+            className="group flex min-w-[6rem] flex-col items-center gap-2 text-gray-400 transition-colors hover:text-accentColor active:text-accentColor"
           >
-            <FaLinkedin size={48} />
+            <FaLinkedin size={44} className="transition-transform group-hover:scale-110" />
+            <span className="text-sm">LinkedIn</span>
           </a>
           <a
             href="https://github.com/RunpengNie"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-400 hover:text-accentColor transition transform hover:scale-110"
+            className="group flex min-w-[6rem] flex-col items-center gap-2 text-gray-400 transition-colors hover:text-accentColor active:text-accentColor"
           >
-            <FaGithub size={48} />
+            <FaGithub size={44} className="transition-transform group-hover:scale-110" />
+            <span className="text-sm">GitHub</span>
           </a>
         </div>
       </section>
