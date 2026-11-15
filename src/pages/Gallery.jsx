@@ -410,7 +410,7 @@ function Gallery() {
             <button
               type="button"
               onClick={() => setShowPrivacyPopup(false)}
-              className="min-h-11 px-6 py-2 bg-accentColor text-black rounded transition hover:opacity-80 active:opacity-80"
+              className="min-h-11 px-6 py-2 bg-accentColor text-white rounded transition hover:opacity-80 active:opacity-80"
             >
               OK
             </button>

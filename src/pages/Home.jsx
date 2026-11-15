@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaLinkedin, FaGithub } from 'react-icons/fa';
+import { HiChevronDown } from 'react-icons/hi';
 import ProgressiveImage from '../components/ProgressiveImage';
 import { getImage } from '../lib/images';
 import { scrollBehavior } from '../lib/motion';
@@ -59,7 +60,8 @@ function Home({ onHeroPassedChange }) {
           className="absolute inset-0 h-full w-full"
         />
 
-        <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
+        {/* Darken the photo for legibility and fade its bottom edge into the page background. */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-black/50 via-60% to-backGroundColor"></div>
 
         <motion.div
           className="absolute inset-0 z-10 flex items-center justify-center text-center px-4 text-white"
@@ -76,26 +78,28 @@ function Home({ onHeroPassedChange }) {
             </h4>
           </div>
         </motion.div>
+
+        {/* Scroll hint */}
+        <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center md:bottom-8">
+          <button
+            type="button"
+            aria-label="Scroll to About"
+            onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: scrollBehavior() })}
+            className="flex h-11 w-11 animate-bounce items-center justify-center text-3xl text-white/70 transition-colors hover:text-white active:text-white"
+          >
+            <HiChevronDown />
+          </button>
+        </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="max-w-6xl mx-auto px-4 py-16 scroll-mt-16">
-        <motion.h3
-          className="text-accentColor text-3xl font-bold text-center mb-12"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          About Me
-        </motion.h3>
-
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+      {/* About Section: photo beside the text from md up, everything left-aligned */}
+      <section id="about" className="max-w-4xl mx-auto px-4 py-16 scroll-mt-16">
+        <div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-12">
           {/* profile pic */}
           <motion.img
             src="/assets/profilepic.jpg"
             alt="Profile"
-            className="w-48 h-48 object-contain rounded-full border-4 border-accentColor shadow-lg"
+            className="h-40 w-40 flex-none self-center rounded-full border-4 border-accentColor object-cover shadow-lg md:h-56 md:w-56 md:self-start"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
@@ -104,15 +108,16 @@ function Home({ onHeroPassedChange }) {
 
           {/* self intro */}
           <motion.div
-            className="text-white text-lg leading-relaxed"
+            className="max-w-prose text-white text-lg leading-relaxed"
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h1 className="text-2xl font-bold mb-4">
+            <h2 className="text-accentColor text-3xl font-bold mb-6">About Me</h2>
+            <p className="text-2xl font-bold leading-snug mb-4">
               Professional Stack Overflow copy-paster, part-time bug creator, and full-time ChatGPT prompter.
-            </h1>
+            </p>
             <p className="mb-4">
               Terrible English speaker and an authentic H1B indentured servant, just waiting for the next round of
               layoffs. Thanks to the U.S. job market, I’ve gained extensive experience in handling layoffs, employers
@@ -131,24 +136,19 @@ function Home({ onHeroPassedChange }) {
               but I absolutely hate washing dishes. And I’m a big fan of sleep (I love my bed),
               even though I’m constantly staying up too late.
             </p>
+
+            {/* Special Note */}
+            <p className="mt-8 border-l-4 border-accentColor bg-accentColor/10 px-5 py-4 rounded-r-md italic">
+              Oh, and by the way, I’m open to any opportunities — so if you want to hire me and you’re offering
+              sponsorship, feel free to contact me.
+            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Special Note */}
-      <motion.div
-        className="max-w-3xl mx-auto mt-8 mb-12 px-6 py-4 bg-accentColor/10 border-l-4 border-accentColor rounded-md text-center italic text-white text-lg shadow-sm"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-      >
-        Oh, and by the way, I’m open to any opportunities — so if you want to hire me and you’re offering sponsorship, feel free to contact me.
-      </motion.div>
-
       {/* Contact Section */}
       <section id="contact" className="bg-backGroundColor py-16 scroll-mt-16">
-        <motion.h3
+        <motion.h2
           className="text-accentColor text-3xl font-bold text-center mb-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -156,7 +156,7 @@ function Home({ onHeroPassedChange }) {
           viewport={{ once: true }}
         >
           Contact Me
-        </motion.h3>
+        </motion.h2>
         <div className="flex justify-center gap-8">
           <a
             href="https://www.linkedin.com/in/runpeng-nie/"

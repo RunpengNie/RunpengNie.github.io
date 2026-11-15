@@ -6,17 +6,36 @@ import { scrollBehavior } from '../lib/motion';
 
 const NAV_HEIGHT = 64;
 
-// `solid` switches the bar from transparent to the accent color (set once the hero is scrolled past).
+// `solid` switches the bar from transparent to frosted dark glass (set once the hero is scrolled past).
 function Navbar({ solid }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [homeSection, setHomeSection] = useState('home');
   const navRef = useRef(null);
 
   const location = useLocation();
   const navigate = useNavigate();
+  const onHome = location.pathname === '/';
+  const opaque = solid || isOpen;
 
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
+
+  // On the home page, mark "About" as current once the About section reaches the upper 40% of the screen.
+  useEffect(() => {
+    const about = onHome && document.getElementById('about');
+    if (!about) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setHomeSection(entry.isIntersecting || entry.boundingClientRect.top < 0 ? 'about' : 'home');
+      },
+      { rootMargin: '0px 0px -60% 0px' }
+    );
+    observer.observe(about);
+    return () => observer.disconnect();
+  }, [onHome]);
+
+  const current = onHome ? homeSection : location.pathname === '/gallery' ? 'gallery' : null;
 
   // Close the mobile menu when tapping outside of it or pressing Escape.
   useEffect(() => {
@@ -48,17 +67,23 @@ function Navbar({ solid }) {
     }
   };
 
-  const linkClass = 'inline-flex min-h-11 items-center px-2 transition hover:text-black hover:scale-105 active:scale-95';
-  const mobileLinkClass = `block w-full min-h-11 py-3 text-left text-base transition active:scale-[0.98] ${
-    solid ? 'hover:text-black active:text-black' : 'hover:text-accentColor active:text-accentColor'
-  }`;
+  // Desktop links: a white underline grows in on hover and stays on the current item
+  // (white rather than accent, since the solid bar itself is the accent color).
+  const linkClass = (name) =>
+    `relative inline-flex min-h-11 items-center px-2 transition-colors hover:text-white
+     after:absolute after:inset-x-2 after:bottom-2 after:h-0.5 after:origin-left after:rounded-full after:bg-white after:transition-transform after:duration-300
+     ${current === name ? 'text-white after:scale-x-100' : 'text-white/80 after:scale-x-0 hover:after:scale-x-100'}`;
+  const mobileLinkClass = (name) =>
+    `block w-full min-h-11 py-3 pl-3 text-left text-base border-l-2 transition active:scale-[0.98] hover:text-white active:text-white ${
+      current === name ? 'border-white text-white' : 'border-transparent text-white/75'
+    }`;
 
   return (
     <nav
       ref={navRef}
       className={`
-        fixed top-0 w-full z-40 transition-colors duration-300
-        ${solid ? 'bg-accentColor text-white shadow-md' : 'bg-transparent text-white'}
+        fixed top-0 w-full z-40 text-white transition-[background-color,box-shadow,border-color] duration-300 border-b
+        ${opaque ? 'bg-accentColor/75 backdrop-blur-md border-white/15 shadow-lg shadow-black/20' : 'bg-transparent border-transparent'}
       `}
     >
       <div className="max-w-6xl mx-auto px-4">
@@ -67,24 +92,20 @@ function Navbar({ solid }) {
           <button
             type="button"
             onClick={() => handleNavClick('home')}
-            className={`
-              min-h-11 text-lg sm:text-xl font-bold hover:opacity-80 transition-colors duration-300
-              ${solid ? 'text-black' : 'text-transparent'}
-            `}
+            className="min-h-11 text-lg sm:text-xl font-bold tracking-wide transition hover:opacity-80 active:opacity-80"
           >
-            <span className="sm:hidden">Jerry Nie</span>
-            <span className="hidden sm:inline">Hi, I am Jerry, nice to meet you</span>
+            Jerry Nie
           </button>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex space-x-4">
-            <button type="button" onClick={() => handleNavClick('home')} className={linkClass}>
+            <button type="button" onClick={() => handleNavClick('home')} className={linkClass('home')}>
               Home
             </button>
-            <button type="button" onClick={() => handleNavClick('about')} className={linkClass}>
+            <button type="button" onClick={() => handleNavClick('about')} className={linkClass('about')}>
               About
             </button>
-            <Link to="/gallery" className={linkClass}>
+            <Link to="/gallery" className={linkClass('gallery')} aria-current={current === 'gallery' ? 'page' : undefined}>
               Gallery
             </Link>
           </div>
@@ -93,7 +114,7 @@ function Navbar({ solid }) {
           <button
             type="button"
             onClick={() => setIsOpen((open) => !open)}
-            className="md:hidden -mr-2 flex h-11 w-11 items-center justify-center text-2xl text-white transition hover:text-black active:scale-90"
+            className="md:hidden -mr-2 flex h-11 w-11 items-center justify-center text-2xl text-white transition hover:text-white/70 active:scale-90"
             aria-label={isOpen ? 'Close Menu' : 'Open Menu'}
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
@@ -124,18 +145,16 @@ function Navbar({ solid }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className={`md:hidden overflow-hidden shadow-lg ${
-              solid ? 'bg-accentColor' : 'bg-backGroundColor'
-            }`}
+            className="md:hidden overflow-hidden"
           >
-            <div className="px-4 pb-2">
-              <button type="button" onClick={() => handleNavClick('home')} className={mobileLinkClass}>
+            <div className="px-4 pb-3 space-y-1">
+              <button type="button" onClick={() => handleNavClick('home')} className={mobileLinkClass('home')}>
                 Home
               </button>
-              <button type="button" onClick={() => handleNavClick('about')} className={mobileLinkClass}>
+              <button type="button" onClick={() => handleNavClick('about')} className={mobileLinkClass('about')}>
                 About
               </button>
-              <Link to="/gallery" onClick={() => setIsOpen(false)} className={mobileLinkClass}>
+              <Link to="/gallery" onClick={() => setIsOpen(false)} className={mobileLinkClass('gallery')}>
                 Gallery
               </Link>
             </div>
