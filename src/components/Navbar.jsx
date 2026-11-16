@@ -6,6 +6,12 @@ import { scrollBehavior } from '../lib/motion';
 
 const NAV_HEIGHT = 64;
 
+// Separate pages, listed after the Home / About section links.
+const PAGE_LINKS = [
+  { name: 'projects', to: '/projects', label: 'Projects' },
+  { name: 'gallery', to: '/gallery', label: 'Gallery' },
+];
+
 // `solid` switches the bar from transparent to frosted dark glass (set once the hero is scrolled past).
 function Navbar({ solid }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +41,7 @@ function Navbar({ solid }) {
     return () => observer.disconnect();
   }, [onHome]);
 
-  const current = onHome ? homeSection : location.pathname === '/gallery' ? 'gallery' : null;
+  const current = onHome ? homeSection : PAGE_LINKS.find(({ to }) => to === location.pathname)?.name ?? null;
 
   // Close the mobile menu when tapping outside of it or pressing Escape.
   useEffect(() => {
@@ -105,9 +111,11 @@ function Navbar({ solid }) {
             <button type="button" onClick={() => handleNavClick('about')} className={linkClass('about')}>
               About
             </button>
-            <Link to="/gallery" className={linkClass('gallery')} aria-current={current === 'gallery' ? 'page' : undefined}>
-              Gallery
-            </Link>
+            {PAGE_LINKS.map(({ name, to, label }) => (
+              <Link key={name} to={to} className={linkClass(name)} aria-current={current === name ? 'page' : undefined}>
+                {label}
+              </Link>
+            ))}
           </div>
 
           {/* Mobile menu button */}
@@ -154,9 +162,17 @@ function Navbar({ solid }) {
               <button type="button" onClick={() => handleNavClick('about')} className={mobileLinkClass('about')}>
                 About
               </button>
-              <Link to="/gallery" onClick={() => setIsOpen(false)} className={mobileLinkClass('gallery')}>
-                Gallery
-              </Link>
+              {PAGE_LINKS.map(({ name, to, label }) => (
+                <Link
+                  key={name}
+                  to={to}
+                  onClick={() => setIsOpen(false)}
+                  className={mobileLinkClass(name)}
+                  aria-current={current === name ? 'page' : undefined}
+                >
+                  {label}
+                </Link>
+              ))}
             </div>
           </motion.div>
         )}

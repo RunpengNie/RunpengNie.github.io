@@ -5,9 +5,10 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Gallery from './pages/Gallery';
+import Projects from './pages/Projects';
 import { scrollToTopInstantly } from './lib/motion';
 
-const PAGE_TITLES = { '/': 'Jerry Nie', '/gallery': 'Jerry Nie - Gallery' };
+const PAGE_TITLES = { '/': 'Jerry Nie', '/projects': 'Jerry Nie - Projects', '/gallery': 'Jerry Nie - Gallery' };
 
 function App() {
   const location = useLocation();
@@ -32,6 +33,7 @@ function App() {
           <div key={location.pathname} className="page-enter">
             <Routes location={location}>
               <Route path="/" element={<Home onHeroPassedChange={setNavSolid} />} />
+              <Route path="/projects" element={<Projects />} />
               <Route path="/gallery" element={<Gallery />} />
             </Routes>
           </div>

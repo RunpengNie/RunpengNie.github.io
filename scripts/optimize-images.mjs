@@ -14,7 +14,7 @@ const OUTPUT_DIR = path.join(ASSETS_DIR, 'generated');
 const MANIFEST_PATH = path.join(ROOT, 'src/data/imageManifest.json');
 
 // Paths relative to public/assets. Directories are scanned for jpg/jpeg/png.
-const SOURCES = ['backgroundPic.jpg', 'backgroundPic2.jpg', 'non-portrait/', 'portrait/'];
+const SOURCES = ['backgroundPic.jpg', 'backgroundPic2.jpg', 'non-portrait/', 'portrait/', 'projects/'];
 
 // Sizes are defined by the long edge of the image.
 const VARIANTS = [

@@ -45,3 +45,6 @@
 - [x] 动画未适配 `prefers-reduced-motion`
 - [x] 未适配刘海屏安全区域（`viewport-fit=cover` / `safe-area-inset`）
 - [x] 缺少 `<meta name="theme-color">`，手机浏览器顶栏颜色与网站不一致
+
+## 8. 新板块：项目（Projects）
+- [x] 网站缺少展示软件项目的板块，招聘方无法直观了解做过的项目（已新增 `/projects` 页面，第一个项目为 Enhanced Reforestation）

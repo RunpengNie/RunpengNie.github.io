@@ -1360,5 +1360,27 @@
         "bytes": 6512879
       }
     ]
+  },
+  "projects/reforestation-enhanced.png": {
+    "hash": "17bd1a46fdce6b16e3dc625e381c1262c580b768",
+    "width": 181,
+    "height": 181,
+    "placeholder": "data:image/webp;base64,UklGRuQDAABXRUJQVlA4WAoAAAAwAAAAFwAAFwAASUNDUOABAAAAAAHgbGNtcwQgAABtbnRyUkdCIFhZWiAH4gADABQACQAOAB1hY3NwTVNGVAAAAABzYXdzY3RybAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWhhbmR56b9WWj4BtoMjhVVG90+qAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApkZXNjAAAA/AAAACRjcHJ0AAABIAAAACJ3dHB0AAABRAAAABRjaGFkAAABWAAAACxyWFlaAAABhAAAABRnWFlaAAABmAAAABRiWFlaAAABrAAAABRyVFJDAAABwAAAACBnVFJDAAABwAAAACBiVFJDAAABwAAAACBtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAYAAAAcAEMAQwAwAABYWVogAAAAAAAA9tYAAQAAAADTLXNmMzIAAAAAAAEMPwAABd3///MmAAAHkAAA/ZL///uh///9ogAAA9wAAMBxWFlaIAAAAAAAAG+gAAA48gAAA49YWVogAAAAAAAAYpYAALeJAAAY2lhZWiAAAAAAAAAkoAAAD4UAALbEcGFyYQAAAAAAAwAAAAJmaQAA8qcAAA1ZAAAT0AAACltBTFBI/QAAAAGQZG2bIVlfRHRPrZm5E9t2j2yM7b53TbaGthbQjD/+r525hIiYAFx3BolldSOjdaUJMBa3O2SsvD8jybO3i+mwNxmLvv9UFRFR5d9uOHMD7jN4UZJU8cp9WAAW93keeEc55y4sHAbolXdWzy44ZP9kYMTAL2nAMj0je87AvGKIJnyM0jNqNOVxfjUDY1BWDFFioLBrMLYqhhhUWV5ySo2BR7l4wRBN+ACYp4/mOQGkf2WIIvyQAoduer2berbAwWKHXu4inmuwACy2qV5USVXvlauwAGAsWn9QGUQClV8b4cw1wCFl6ukJSZ48HkuCw+3WwOWWd3aW51gYi+sAVlA4INgAAADQBQCdASoYABgAPu1qrVCppaQiqAqpMB2JYgCw+iM48AoLAnO6jifTqnsC+qhnV+d0z0rdvmQAAP7PJt54LlO+B1lA6/SrviRtLy782dfasXl7XglM0o+y7nwlsvk07jAERgkLs4nQ5JzYZrPYam5ibtX0cTfBHjpbDNnd5tgOG05fX4k11rJztfS0Hqwefs2/GvaMXy+X9U95ZkKtFLzj/5lHKJBFpfOAoeycYLaA0nOnxvEQyjrJdx1Bz00Vbj/SDuoQYoPcoGnnFEZ41EaYFQppwwvEAAA=",
+    "variants": [
+      {
+        "name": "thumb",
+        "src": "/assets/generated/projects/reforestation-enhanced-thumb.17bd1a46.webp",
+        "width": 181,
+        "height": 181,
+        "bytes": 6130
+      },
+      {
+        "name": "original",
+        "src": "/assets/projects/reforestation-enhanced.png?v=17bd1a46",
+        "width": 181,
+        "height": 181,
+        "bytes": 34518
+      }
+    ]
   }
 }

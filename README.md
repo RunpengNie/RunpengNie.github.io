@@ -42,6 +42,7 @@ npm run images    # 只重新生成图片
 │   └── assets/
 │       ├── non-portrait/          # 作品集：非人像（原图）
 │       ├── portrait/              # 作品集：人像（原图）
+│       ├── projects/              # 项目卡片封面（原图）
 │       ├── generated/             # 脚本生成的多尺寸 WebP，不要手动修改
 │       ├── backgroundPic*.jpg     # 首页背景图（原图）
 │       └── profilepic.jpg         # 头像
@@ -55,13 +56,16 @@ npm run images    # 只重新生成图片
 │   │   └── FullscreenViewer.jsx   # 全屏查看器：缩放、拖动、滑动切换、下滑关闭
 │   ├── pages/
 │   │   ├── Home.jsx               # 首页：Hero / About / Contact
+│   │   ├── Projects.jsx           # 项目列表页（卡片布局）
 │   │   └── Gallery.jsx            # 作品集，照片列表和描述也写在这里
 │   ├── lib/
 │   │   ├── images.js              # 读取 manifest、选择尺寸、预加载
 │   │   ├── useDevicePixelRatio.js # 监听设备像素比变化
 │   │   ├── useScrollLock.js       # 弹层打开时锁定页面滚动
 │   │   └── motion.js              # 减少动画偏好（reduced motion）相关的滚动工具函数
-│   └── data/imageManifest.json    # 脚本生成的图片清单，不要手动修改
+│   └── data/
+│       ├── projects.js            # 项目列表数据，新增项目改这里
+│       └── imageManifest.json     # 脚本生成的图片清单，不要手动修改
 ├── vite.config.js
 ├── tailwind.config.js             # 主题色 accentColor / backGroundColor
 └── todo.md                        # 已知问题清单
@@ -71,7 +75,7 @@ npm run images    # 只重新生成图片
 
 ### 页面与路由
 
-- 只有两个路由：`/`（Home）和 `/gallery`（Gallery）。切换路由时，新页面立即渲染，并用纯 CSS 动画（`index.css` 中的 `.page-enter`）淡入，同时滚动回顶部。
+- 共三个路由：`/`（Home）、`/projects`（Projects）和 `/gallery`（Gallery）。切换路由时，新页面立即渲染，并用纯 CSS 动画（`index.css` 中的 `.page-enter`）淡入，同时滚动回顶部。
   - 之前用的是 framer-motion 的 `AnimatePresence mode="wait"`：它要等旧页面的退出动画报告完成，才会渲染新页面。在部分安卓 WebView 浏览器（如 Via）里，从 Gallery 返回 Home 时会卡在这一步，页面只剩 footer。
   - CSS 动画只定义了起始帧，即使浏览器没有执行动画，页面也是正常可见的。
 - Home 是单页滚动结构，包括 `#home`、`#about`、`#contact` 几个区块。导航栏里的 Home / About 用平滑滚动定位到对应区块。如果当前不在首页，就先跳转到 `/`，再通过路由 `state.scrollToId` 告诉 Home 要滚动到哪里。
@@ -112,7 +116,7 @@ npm run images    # 只重新生成图片
 
 ### 构建时：生成多个尺寸
 
-`scripts/optimize-images.mjs` 会为首页背景图和作品集照片生成以下版本：
+`scripts/optimize-images.mjs` 会为首页背景图、作品集照片和项目封面生成以下版本：
 
 | 尺寸 | 长边 | 格式 | 用途 |
 |---|---|---|---|
@@ -155,6 +159,15 @@ npm run images    # 只重新生成图片
    - 替换照片：直接用同名文件覆盖原图即可，代码不用改；如果地点、标题等变了，再改对应的描述。
 2. 新增照片：在 `src/pages/Gallery.jsx` 的 `categories` 中添加图片路径和对应描述。`images` 和 `descriptions` 按下标一一对应。
 3. 运行 `npm run dev` 或 `npm run build`，会自动生成各个尺寸；被替换或删除的旧版本生成文件会被自动清理。把 `public/assets/generated/` 和 `src/data/imageManifest.json` 一起提交。
+
+## 添加项目
+
+1. 把封面图放进 `public/assets/projects/`（JPG 或 PNG，图标建议用透明背景的 PNG）。
+2. 在 `src/data/projects.js` 的数组里加一项，数组顺序就是页面显示顺序。字段包括 `title`、`type`、`summary`、`highlights`、`tech`、`links`、`install`（可选，安装说明 `{ note, steps }`，步骤里用反引号包住的文字显示为代码）、`credits`（可选）和 `cover`：
+   - `cover.fit: 'contain'`：图标或 Logo，居中显示在蓝色光晕背景上，用普通 `<img srcSet>` 加载，避免透明图下面露出模糊占位图。
+   - `cover.fit: 'cover'`：截图类封面，用 `ProgressiveImage` 裁切填满封面区域。
+   - `links[].icon` 目前支持 `'github'`，其他值显示通用的外链图标。
+3. 和照片一样，运行 `npm run dev` 或 `npm run build` 生成各尺寸，并提交 `public/assets/generated/` 和 `src/data/imageManifest.json`。
 
 ## 图标与分享预览图
 
