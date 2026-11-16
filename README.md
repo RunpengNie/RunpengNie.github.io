@@ -79,7 +79,7 @@ npm run images    # 只重新生成图片
   - 之前用的是 framer-motion 的 `AnimatePresence mode="wait"`：它要等旧页面的退出动画报告完成，才会渲染新页面。在部分安卓 WebView 浏览器（如 Via）里，从 Gallery 返回 Home 时会卡在这一步，页面只剩 footer。
   - CSS 动画只定义了起始帧，即使浏览器没有执行动画，页面也是正常可见的。
 - Home 是单页滚动结构，包括 `#home`、`#about`、`#contact` 几个区块。导航栏里的 Home / About 用平滑滚动定位到对应区块。如果当前不在首页，就先跳转到 `/`，再通过路由 `state.scrollToId` 告诉 Home 要滚动到哪里。
-- 导航栏一开始是透明的。Home 用 `IntersectionObserver` 监听 Hero 区的副标题，副标题完全滚出视口顶部后，通过 `onHeroPassedChange` 通知 `App`，`App` 再把 `solid` 传给 Navbar，让它变成不透明。离开首页时会重置为透明。
+- 导航栏只在首页顶部是透明的，左上角的 “Jerry Nie” 也一起隐藏（Hero 区的大标题已经显示了名字）。Home 用 `IntersectionObserver` 监听 Hero 区的副标题，副标题完全滚出视口顶部后，通过 `onHeroPassedChange` 通知 `App`，`App` 再把 `solid` 传给 Navbar，让它变成皇家蓝，“Jerry Nie” 同时淡入。打开手机菜单时也会变成不透明。Projects 和 Gallery 页面的导航栏始终是皇家蓝。
 
 ### 移动端与无障碍
 

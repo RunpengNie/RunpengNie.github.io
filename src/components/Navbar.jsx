@@ -12,7 +12,8 @@ const PAGE_LINKS = [
   { name: 'gallery', to: '/gallery', label: 'Gallery' },
 ];
 
-// `solid` switches the bar from transparent to frosted dark glass (set once the hero is scrolled past).
+// The bar is transparent only at the top of the home page; `solid` (set once the hero is scrolled past)
+// switches it to frosted royal blue. Other pages always show the solid bar.
 function Navbar({ solid }) {
   const [isOpen, setIsOpen] = useState(false);
   const [homeSection, setHomeSection] = useState('home');
@@ -21,7 +22,7 @@ function Navbar({ solid }) {
   const location = useLocation();
   const navigate = useNavigate();
   const onHome = location.pathname === '/';
-  const opaque = solid || isOpen;
+  const opaque = !onHome || solid || isOpen;
 
   useEffect(() => {
     setIsOpen(false);
@@ -98,7 +99,11 @@ function Navbar({ solid }) {
           <button
             type="button"
             onClick={() => handleNavClick('home')}
-            className="min-h-11 text-lg sm:text-xl font-bold tracking-wide transition hover:opacity-80 active:opacity-80"
+            // Shown together with the bar background; over the hero the big title already shows the name.
+            // `invisible` also removes it from the tab order and accessibility tree while hidden.
+            className={`min-h-11 text-lg sm:text-xl font-bold tracking-wide transition-[opacity,visibility] duration-300 hover:opacity-80 active:opacity-80 ${
+              opaque ? '' : 'invisible opacity-0'
+            }`}
           >
             Jerry Nie
           </button>
