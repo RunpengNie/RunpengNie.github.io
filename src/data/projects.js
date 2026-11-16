@@ -1,7 +1,11 @@
 // Projects shown on /projects, in display order.
 // cover.src must be an image under public/assets/projects/ (processed by `npm run images`).
 // cover.fit: "contain" for icons/logos (centered on a tinted backdrop), "cover" for screenshots.
-// install (optional): { note, steps }; text wrapped in `backticks` inside a step renders as code.
+// video (optional): { src, width, height, poster? } — a demo clip in public/assets/projects/ shown in place
+//   of the cover. width/height are the clip's pixel size (used to reserve space); poster is an optional still.
+// notice (optional): { title, text, steps? } — a boxed note such as install instructions or availability;
+//   text wrapped in `backticks` inside a step renders as code.
+// links: may be empty, e.g. for private repositories.
 const projects = [
   {
     id: 'enhanced-reforestation',
@@ -17,8 +21,9 @@ const projects = [
       'Localized in English, German, French and Traditional Chinese.',
       'Built without an IDE: the official ModBuddy tool needs the long-discontinued Visual Studio 2010 Shell, so the SQL, Lua, XML and the .modinfo manifest are all written by hand, and every change is tested by playing the game.',
     ],
-    install: {
-      note: 'Not published on the Steam Workshop. To install it manually:',
+    notice: {
+      title: 'How to install',
+      text: 'Not published on the Steam Workshop. To install it manually:',
       steps: [
         'Download the repository as a ZIP from GitHub and extract it.',
         'Rename the extracted folder to `Enhanced Reforestation (v 1)`.',
@@ -30,6 +35,30 @@ const projects = [
     cover: { src: '/assets/projects/reforestation-enhanced.png', fit: 'contain' },
     links: [{ label: 'GitHub', href: 'https://github.com/RunpengNie/ReforestationEnhanced', icon: 'github' }],
     credits: "Built on FramedArchitecture's Reforestation and gwennog's Reforestation for Vox Populi.",
+  },
+  {
+    id: 'lyra',
+    title: 'Lyra',
+    type: 'Android App',
+    summary:
+      'A native Android music player that brings local files and online music into one library, ' +
+      'with synced lyrics, playlists, metadata repair and lightweight on-device recommendations.',
+    highlights: [
+      'Kotlin, Jetpack Compose and Material 3 in an MVVM architecture split into data, playback and UI layers. Media3 (ExoPlayer + MediaSession) handles background playback, notification and Bluetooth controls; the release APK is about 4.6 MB.',
+      'One queue and one library for local and online tracks: favorites, play history and playlists that survive file moves and media-library rebuilds, with JSON backup and M3U8 import/export.',
+      'Synced LRC lyrics with translations. Lyrics and album art are matched automatically, but conservatively: when tags are unreliable it skips rather than guessing wrong, and garbled tags (such as GBK mojibake) can be repaired in the app.',
+      'Plays MP3, FLAC, ALAC, AAC, Opus and WAV natively, plus APE through a trimmed-down FFmpeg build loaded over JNI.',
+      'Easy on the network: a whole-song playback cache, request throttling and persistent caches let songs that have been played once replay offline.',
+      'Private by design: all data stays in app-private storage and uninstalling leaves nothing behind.',
+      'Covered by about 290 JVM unit tests, including Room database migration tests run with Robolectric.',
+    ],
+    notice: {
+      title: 'Availability',
+      text: "Online music is sourced through some unconventional means, so I can't publish the app. If you know me in real life, feel free to ask me for a test build.",
+    },
+    tech: ['Kotlin', 'Jetpack Compose', 'Media3', 'Room', 'Koin', 'Retrofit', 'Coil', 'FFmpeg (JNI)'],
+    cover: { src: '/assets/projects/lyra.png', fit: 'contain' },
+    links: [],
   },
 ];
 

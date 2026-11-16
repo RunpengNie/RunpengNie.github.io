@@ -1,12 +1,59 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FaGithub } from 'react-icons/fa';
 import { HiExternalLink } from 'react-icons/hi';
 import ProgressiveImage from '../components/ProgressiveImage';
 import { getImage } from '../lib/images';
+import { prefersReducedMotion } from '../lib/motion';
 import projects from '../data/projects';
 
 const LINK_ICONS = { github: FaGithub };
+// Accent-colored glow behind icons and demo videos.
+const GLOW = 'bg-[radial-gradient(circle_at_center,rgb(65_105_225/0.35),transparent_70%)]';
+
+// Muted, looping demo clip. Plays while on screen (unless the visitor prefers reduced motion)
+// and pauses when scrolled away; a clip the visitor paused stays paused.
+function ProjectVideo({ video, title }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (prefersReducedMotion()) return undefined;
+    let pausedByScroll = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (el.paused && (pausedByScroll || el.currentTime === 0)) el.play().catch(() => {});
+          pausedByScroll = false;
+        } else if (!el.paused) {
+          pausedByScroll = true;
+          el.pause();
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={ref}
+      src={video.src}
+      poster={video.poster}
+      width={video.width}
+      height={video.height}
+      aria-label={`${title} demo`}
+      muted
+      loop
+      playsInline
+      controls
+      preload="metadata"
+      className="h-[calc(60*var(--svh))] max-h-[36rem] w-auto max-w-full rounded-xl bg-black shadow-lg shadow-black/40"
+      style={{ aspectRatio: `${video.width} / ${video.height}` }}
+    />
+  );
+}
 
 // Renders `backtick` spans as inline code; long paths may wrap mid-word when they don't fit.
 function InlineCode({ text }) {
@@ -28,7 +75,7 @@ function ProjectCover({ cover, title }) {
   // Icons are small and often transparent, so a plain <img> avoids the blurred placeholder showing through.
   const { variants } = getImage(cover.src);
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,rgb(65_105_225/0.35),transparent_70%)]">
+    <div className={`absolute inset-0 flex items-center justify-center ${GLOW}`}>
       <img
         src={variants[variants.length - 1].src}
         srcSet={variants.map((v) => `${v.src} ${v.width}w`).join(', ')}
@@ -51,9 +98,15 @@ function ProjectCard({ project }) {
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
     >
-      <div className="relative aspect-video flex-none bg-black/30 md:aspect-auto md:w-2/5">
-        <ProjectCover cover={project.cover} title={project.title} />
-      </div>
+      {project.video ? (
+        <div className={`flex flex-none items-center justify-center bg-black/30 p-6 md:w-2/5 ${GLOW}`}>
+          <ProjectVideo video={project.video} title={project.title} />
+        </div>
+      ) : (
+        <div className="relative aspect-video flex-none bg-black/30 md:aspect-auto md:w-2/5">
+          <ProjectCover cover={project.cover} title={project.title} />
+        </div>
+      )}
 
       <div className="flex flex-col gap-4 p-6 md:p-8">
         <div>
@@ -77,39 +130,43 @@ function ProjectCard({ project }) {
           ))}
         </ul>
 
-        {project.install && (
+        {project.notice && (
           <div className="rounded-lg border border-white/10 bg-black/20 p-4">
-            <h3 className="text-sm font-semibold text-white">How to install</h3>
-            <p className="mt-1 text-sm text-gray-400">{project.install.note}</p>
-            <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-gray-300 marker:text-gray-500">
-              {project.install.steps.map((step) => (
-                <li key={step}>
-                  <InlineCode text={step} />
-                </li>
-              ))}
-            </ol>
+            <h3 className="text-sm font-semibold text-white">{project.notice.title}</h3>
+            <p className="mt-1 text-sm leading-relaxed text-gray-400">{project.notice.text}</p>
+            {project.notice.steps && (
+              <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-gray-300 marker:text-gray-500">
+                {project.notice.steps.map((step) => (
+                  <li key={step}>
+                    <InlineCode text={step} />
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
         )}
 
         {project.credits && <p className="text-xs italic text-gray-500">{project.credits}</p>}
 
-        <div className="mt-auto flex flex-wrap gap-3 pt-2">
-          {project.links.map(({ label, href, icon }) => {
-            const Icon = LINK_ICONS[icon] ?? HiExternalLink;
-            return (
-              <a
-                key={href}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 px-5 text-sm font-semibold text-white transition hover:border-accentColor hover:bg-accentColor active:bg-accentColor"
-              >
-                <Icon aria-hidden="true" className="text-lg" />
-                {label}
-              </a>
-            );
-          })}
-        </div>
+        {project.links.length > 0 && (
+          <div className="mt-auto flex flex-wrap gap-3 pt-2">
+            {project.links.map(({ label, href, icon }) => {
+              const Icon = LINK_ICONS[icon] ?? HiExternalLink;
+              return (
+                <a
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 px-5 text-sm font-semibold text-white transition hover:border-accentColor hover:bg-accentColor active:bg-accentColor"
+                >
+                  <Icon aria-hidden="true" className="text-lg" />
+                  {label}
+                </a>
+              );
+            })}
+          </div>
+        )}
       </div>
     </motion.article>
   );

@@ -163,11 +163,22 @@ npm run images    # 只重新生成图片
 ## 添加项目
 
 1. 把封面图放进 `public/assets/projects/`（JPG 或 PNG，图标建议用透明背景的 PNG）。
-2. 在 `src/data/projects.js` 的数组里加一项，数组顺序就是页面显示顺序。字段包括 `title`、`type`、`summary`、`highlights`、`tech`、`links`、`install`（可选，安装说明 `{ note, steps }`，步骤里用反引号包住的文字显示为代码）、`credits`（可选）和 `cover`：
+2. 在 `src/data/projects.js` 的数组里加一项，数组顺序就是页面显示顺序。字段包括 `title`、`type`、`summary`、`highlights`、`tech`、`links`（可为空数组，比如私有仓库）、`notice`（可选，带标题的说明框 `{ title, text, steps? }`，用于安装说明、获取方式等；步骤里用反引号包住的文字显示为代码）、`credits`（可选）、`video`（可选，见下文）和 `cover`：
    - `cover.fit: 'contain'`：图标或 Logo，居中显示在蓝色光晕背景上，用普通 `<img srcSet>` 加载，避免透明图下面露出模糊占位图。
    - `cover.fit: 'cover'`：截图类封面，用 `ProgressiveImage` 裁切填满封面区域。
    - `links[].icon` 目前支持 `'github'`，其他值显示通用的外链图标。
 3. 和照片一样，运行 `npm run dev` 或 `npm run build` 生成各尺寸，并提交 `public/assets/generated/` 和 `src/data/imageManifest.json`。
+
+### 演示视频
+
+设置了 `video: { src, width, height, poster? }` 时，卡片左侧显示视频而不是封面：静音、循环播放，带播放控件；滑进视口后自动播放，滑出视口后暂停；访客手动暂停后不会自动恢复；系统开启“减少动画”时不会自动播放。
+
+- 视频直接放在 `public/assets/projects/`，原样发布，不经过图片脚本处理。`width` / `height` 填视频的像素尺寸，用来提前占位、防止页面跳动；`poster` 是可选的静态首帧图。
+- 用 MP4（H.264），竖屏录制，控制在 30 秒左右、10MB 以内。用 ffmpeg 压缩并去掉音轨：
+
+  ```bash
+  ffmpeg -i raw.mp4 -vf "scale=720:-2,fps=30" -c:v libx264 -crf 28 -preset slow -pix_fmt yuv420p -an -movflags +faststart lyra-demo.mp4
+  ```
 
 ## 图标与分享预览图
 
