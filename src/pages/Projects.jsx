@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaGithub } from 'react-icons/fa';
-import { HiExternalLink } from 'react-icons/hi';
+import { HiExternalLink, HiPlay } from 'react-icons/hi';
 import ProgressiveImage from '../components/ProgressiveImage';
 import { getImage } from '../lib/images';
 import { prefersReducedMotion } from '../lib/motion';
@@ -11,19 +11,49 @@ const LINK_ICONS = { github: FaGithub };
 // Accent-colored glow behind icons and demo videos.
 const GLOW = 'bg-[radial-gradient(circle_at_center,rgb(65_105_225/0.35),transparent_70%)]';
 
-// Muted, looping demo clip. Plays while on screen (unless the visitor prefers reduced motion)
-// and pauses when scrolled away; a clip the visitor paused stays paused.
-function ProjectVideo({ video, title }) {
-  const ref = useRef(null);
+// Icons are small and often transparent, so a plain <img> avoids the blurred placeholder showing through.
+function CoverIcon({ cover, title, className = 'h-[70%] max-h-44 w-auto' }) {
+  const { variants } = getImage(cover.src);
+  return (
+    <img
+      src={variants[variants.length - 1].src}
+      srcSet={variants.map((v) => `${v.src} ${v.width}w`).join(', ')}
+      sizes="176px"
+      alt={title}
+      decoding="async"
+      draggable={false}
+      className={`select-none ${className}`}
+    />
+  );
+}
+
+// Muted demo clip shown in place of the cover. It plays once by itself the first time it scrolls into
+// view (not when the visitor prefers reduced motion) and pauses while off screen; when it ends, the
+// cover comes back with a "Play demo" button. The clip stays mounted, just hidden, so the card keeps its size.
+function ProjectDemo({ video, cover, title }) {
+  const videoRef = useRef(null);
+  const buttonRef = useRef(null);
+  const [showCover, setShowCover] = useState(prefersReducedMotion);
+  const showCoverRef = useRef(showCover);
+  showCoverRef.current = showCover;
+  // Element to focus once the cover/clip swap has rendered, so keyboard focus never sits on a hidden element.
+  const focusAfterSwap = useRef(null);
 
   useEffect(() => {
-    const el = ref.current;
-    if (prefersReducedMotion()) return undefined;
+    focusAfterSwap.current?.focus();
+    focusAfterSwap.current = null;
+  }, [showCover]);
+
+  useEffect(() => {
+    const el = videoRef.current;
     let pausedByScroll = false;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          if (el.paused && (pausedByScroll || el.currentTime === 0)) el.play().catch(() => {});
+          const firstView = el.currentTime === 0;
+          if (!showCoverRef.current && el.paused && (pausedByScroll || firstView)) {
+            el.play().catch(() => setShowCover(true));
+          }
           pausedByScroll = false;
         } else if (!el.paused) {
           pausedByScroll = true;
@@ -36,22 +66,59 @@ function ProjectVideo({ video, title }) {
     return () => observer.disconnect();
   }, []);
 
+  const playDemo = () => {
+    const el = videoRef.current;
+    if (document.activeElement === buttonRef.current) focusAfterSwap.current = el;
+    setShowCover(false);
+    el.currentTime = 0;
+    el.play().catch(() => setShowCover(true));
+  };
+
+  const onEnded = () => {
+    if (document.activeElement === videoRef.current) focusAfterSwap.current = buttonRef.current;
+    setShowCover(true);
+  };
+
   return (
-    <video
-      ref={ref}
-      src={video.src}
-      poster={video.poster}
-      width={video.width}
-      height={video.height}
-      aria-label={`${title} demo`}
-      muted
-      loop
-      playsInline
-      controls
-      preload="metadata"
-      className="h-[calc(60*var(--svh))] max-h-[36rem] w-auto max-w-full rounded-xl bg-black shadow-lg shadow-black/40"
-      style={{ aspectRatio: `${video.width} / ${video.height}` }}
-    />
+    <>
+      <video
+        ref={videoRef}
+        src={video.src}
+        poster={video.poster}
+        width={video.width}
+        height={video.height}
+        aria-label={`${title} demo`}
+        muted
+        playsInline
+        controls
+        preload="metadata"
+        onEnded={onEnded}
+        className={`h-[calc(60*var(--svh))] max-h-[36rem] w-auto max-w-full rounded-xl bg-black shadow-lg shadow-black/40 ${
+          showCover ? 'invisible' : ''
+        }`}
+        style={{ aspectRatio: `${video.width} / ${video.height}` }}
+      />
+      <div
+        className={`absolute inset-0 flex flex-col items-center justify-center gap-6 transition-[opacity,visibility] duration-300 ${
+          showCover ? '' : 'invisible opacity-0'
+        }`}
+      >
+        {cover.fit === 'cover' ? (
+          <ProgressiveImage src={cover.src} alt={title} fit="cover" className="absolute inset-0 h-full w-full" />
+        ) : (
+          <CoverIcon cover={cover} title={title} className="h-auto w-32 sm:w-40 md:w-44" />
+        )}
+        <button
+          ref={buttonRef}
+          type="button"
+          onClick={playDemo}
+          className="relative inline-flex min-h-11 items-center gap-2 rounded-full bg-accentColor px-5 text-sm font-semibold text-white shadow-lg shadow-black/30 transition hover:opacity-85 active:scale-95"
+        >
+          <HiPlay aria-hidden="true" className="text-xl" />
+          Play demo
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -72,19 +139,9 @@ function ProjectCover({ cover, title }) {
   if (cover.fit === 'cover') {
     return <ProgressiveImage src={cover.src} alt={title} fit="cover" className="absolute inset-0 h-full w-full" />;
   }
-  // Icons are small and often transparent, so a plain <img> avoids the blurred placeholder showing through.
-  const { variants } = getImage(cover.src);
   return (
     <div className={`absolute inset-0 flex items-center justify-center ${GLOW}`}>
-      <img
-        src={variants[variants.length - 1].src}
-        srcSet={variants.map((v) => `${v.src} ${v.width}w`).join(', ')}
-        sizes="176px"
-        alt={title}
-        decoding="async"
-        draggable={false}
-        className="h-[70%] max-h-44 w-auto select-none"
-      />
+      <CoverIcon cover={cover} title={title} />
     </div>
   );
 }
@@ -99,8 +156,8 @@ function ProjectCard({ project }) {
       viewport={{ once: true }}
     >
       {project.video ? (
-        <div className={`flex flex-none items-center justify-center bg-black/30 p-6 md:w-2/5 ${GLOW}`}>
-          <ProjectVideo video={project.video} title={project.title} />
+        <div className={`relative flex flex-none items-center justify-center bg-black/30 p-6 md:w-2/5 ${GLOW}`}>
+          <ProjectDemo video={project.video} cover={project.cover} title={project.title} />
         </div>
       ) : (
         <div className="relative aspect-video flex-none bg-black/30 md:aspect-auto md:w-2/5">

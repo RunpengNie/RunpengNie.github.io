@@ -46,11 +46,11 @@ const projects = [
     highlights: [
       'Kotlin, Jetpack Compose and Material 3 in an MVVM architecture split into data, playback and UI layers. Media3 (ExoPlayer + MediaSession) handles background playback, notification and Bluetooth controls; the release APK is about 4.6 MB.',
       'One queue and one library for local and online tracks: favorites, play history and playlists that survive file moves and media-library rebuilds, with JSON backup and M3U8 import/export.',
-      'Synced LRC lyrics with translations. Lyrics and album art are matched automatically, but conservatively: when tags are unreliable it skips rather than guessing wrong, and garbled tags (such as GBK mojibake) can be repaired in the app.',
+      'Synced LRC lyrics with translations, also shown line by line on Bluetooth car displays. Lyrics and album art are matched automatically, but conservatively: when tags are unreliable it skips rather than guessing wrong, and garbled tags (such as GBK mojibake) can be repaired in the app.',
       'Plays MP3, FLAC, ALAC, AAC, Opus and WAV natively, plus APE through a trimmed-down FFmpeg build loaded over JNI.',
       'Easy on the network: a whole-song playback cache, request throttling and persistent caches let songs that have been played once replay offline.',
-      'Private by design: all data stays in app-private storage and uninstalling leaves nothing behind.',
-      'Covered by about 290 JVM unit tests, including Room database migration tests run with Robolectric.',
+      'Private by design: all data stays in app-private storage and uninstalling leaves nothing behind. The interface is available in English and Simplified Chinese.',
+      'Covered by about 330 JVM unit tests, including Room database migration tests run with Robolectric.',
     ],
     notice: {
       title: 'Availability',
@@ -58,6 +58,12 @@ const projects = [
     },
     tech: ['Kotlin', 'Jetpack Compose', 'Media3', 'Room', 'Koin', 'Retrofit', 'Coil', 'FFmpeg (JNI)'],
     cover: { src: '/assets/projects/lyra.png', fit: 'contain' },
+    video: {
+      src: '/assets/projects/lyra-demo.mp4',
+      poster: '/assets/projects/lyra-demo-poster.webp',
+      width: 720,
+      height: 1600,
+    },
     links: [],
   },
 ];
