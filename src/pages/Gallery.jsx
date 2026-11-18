@@ -79,11 +79,11 @@ const categories = [
       '/assets/portrait/3.jpg',
       '/assets/portrait/4.jpg',
       '/assets/portrait/5.jpg',
-      '/assets/portrait/6.jpg',
+      // '/assets/portrait/6.jpg', temporarily hidden
       '/assets/portrait/7.jpg',
       '/assets/portrait/8.jpg',
       '/assets/portrait/9.jpg',
-      '/assets/portrait/10.jpg',
+      // '/assets/portrait/10.jpg', temporarily hidden
       '/assets/portrait/11.jpg',
     ],
     descriptions: [
@@ -92,11 +92,11 @@ const categories = [
       { title: 'Light and Shadow', location: '37.501311°N 122.472303°W, CA, United States', model: 'Vincent X.' },
       { title: 'Serenity Afloat', location: 'Lake Washington, WA, United States', model: 'Jerry N.' },
       { title: 'Climber', location: 'Hurricane Ridge, WA, United States', model: 'Tony L.' },
-      { title: '回眸', location: 'Sipsongpanna, Yunnan, China', model: 'Yuxin Z.' },
+      // { title: '回眸', location: 'Sipsongpanna, Yunnan, China', model: 'Yuxin Z.' },
       { title: 'Mirada a la Garita', location: 'San Juan, PR, United States', model: 'Tony L.' },
       { title: 'Swing', location: 'Vieques, PR, United States', model: 'LL.' },
       { title: 'Public Storage', location: 'Seattle, WA, United States', model: 'N/A' },
-      { title: 'Breathe in Blue', location: 'Sipsongpanna, Yunnan, China', model: 'Dr. Jenny Z.' },
+      // { title: 'Breathe in Blue', location: 'Sipsongpanna, Yunnan, China', model: 'Dr. Jenny Z.' },
       { title: '桜の下で', location: 'University of Washington, WA, United States', model: 'N/A' },
     ],
   },
