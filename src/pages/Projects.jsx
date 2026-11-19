@@ -4,7 +4,6 @@ import { FaGithub } from 'react-icons/fa';
 import { HiExternalLink, HiPlay } from 'react-icons/hi';
 import ProgressiveImage from '../components/ProgressiveImage';
 import { getImage } from '../lib/images';
-import { prefersReducedMotion } from '../lib/motion';
 import projects from '../data/projects';
 
 const LINK_ICONS = { github: FaGithub };
@@ -27,15 +26,14 @@ function CoverIcon({ cover, title, className = 'h-[70%] max-h-44 w-auto' }) {
   );
 }
 
-// Muted demo clip shown in place of the cover. It plays once by itself the first time it scrolls into
-// view (not when the visitor prefers reduced motion) and pauses while off screen; when it ends, the
-// cover comes back with a "Play demo" button. The clip stays mounted, just hidden, so the card keeps its size.
+// Demo clip with sound, shown in place of the cover. Browsers don't autoplay video with sound, so the
+// cover shows first with a "Play demo" button; the clip plays from the start when clicked, pauses while
+// scrolled off screen (resuming when back) and returns to the cover when it ends. The clip stays mounted,
+// just hidden, so the card keeps its size.
 function ProjectDemo({ video, cover, title }) {
   const videoRef = useRef(null);
   const buttonRef = useRef(null);
-  const [showCover, setShowCover] = useState(prefersReducedMotion);
-  const showCoverRef = useRef(showCover);
-  showCoverRef.current = showCover;
+  const [showCover, setShowCover] = useState(true);
   // Element to focus once the cover/clip swap has rendered, so keyboard focus never sits on a hidden element.
   const focusAfterSwap = useRef(null);
 
@@ -50,10 +48,7 @@ function ProjectDemo({ video, cover, title }) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          const firstView = el.currentTime === 0;
-          if (!showCoverRef.current && el.paused && (pausedByScroll || firstView)) {
-            el.play().catch(() => setShowCover(true));
-          }
+          if (pausedByScroll && el.paused) el.play().catch(() => {});
           pausedByScroll = false;
         } else if (!el.paused) {
           pausedByScroll = true;
@@ -88,10 +83,9 @@ function ProjectDemo({ video, cover, title }) {
         width={video.width}
         height={video.height}
         aria-label={`${title} demo`}
-        muted
         playsInline
         controls
-        preload="metadata"
+        preload="none"
         onEnded={onEnded}
         className={`h-[calc(60*var(--svh))] max-h-[36rem] w-auto max-w-full rounded-xl bg-black shadow-lg shadow-black/40 ${
           showCover ? 'invisible' : ''

@@ -1,7 +1,8 @@
 // Projects shown on /projects, in display order.
 // cover.src must be an image under public/assets/projects/ (processed by `npm run images`).
 // cover.fit: "contain" for icons/logos (centered on a tinted backdrop), "cover" for screenshots.
-// video (optional): { src, width, height, poster? } — a demo clip in public/assets/projects/ shown in place
+// video (optional): { src, width, height, poster? } — a demo clip in public/assets/projects/ (named
+//   <project>-demo-<variant>.mp4 / <project>-demo-<variant>-poster.webp) shown in place
 //   of the cover. width/height are the clip's pixel size (used to reserve space); poster is an optional still.
 // notice (optional): { title, text, steps? } — a boxed note such as install instructions or availability;
 //   text wrapped in `backticks` inside a step renders as code.
@@ -44,13 +45,13 @@ const projects = [
       'A native Android music player that brings local files and online music into one library, ' +
       'with synced lyrics, playlists, metadata repair and lightweight on-device recommendations.',
     highlights: [
-      'Kotlin, Jetpack Compose and Material 3 in an MVVM architecture split into data, playback and UI layers. Media3 (ExoPlayer + MediaSession) handles background playback, notification and Bluetooth controls; the release APK is about 4.6 MB.',
+      'Kotlin, Jetpack Compose and Material 3 in an MVVM architecture split into data, playback and UI layers. Media3 (ExoPlayer + MediaSession) handles background playback, notification and Bluetooth controls; the release APK is about 7 MB.',
       'One queue and one library for local and online tracks: favorites, play history and playlists that survive file moves and media-library rebuilds, with JSON backup and M3U8 import/export.',
-      'Synced LRC lyrics with translations, also shown line by line on Bluetooth car displays. Lyrics and album art are matched automatically, but conservatively: when tags are unreliable it skips rather than guessing wrong, and garbled tags (such as GBK mojibake) can be repaired in the app.',
-      'Plays MP3, FLAC, ALAC, AAC, Opus and WAV natively, plus APE through a trimmed-down FFmpeg build loaded over JNI.',
+      'Synced LRC lyrics with translations, also shown line by line on Bluetooth car displays. Lyrics and album art are matched automatically, but conservatively: candidates are checked against the track length, when tags are unreliable it skips rather than guessing wrong, and garbled tags (such as GBK mojibake) can be repaired in the app.',
+      'Plays MP3, FLAC, ALAC, AAC, OGG, Opus and WAV natively, plus APE through a trimmed-down FFmpeg build loaded over JNI.',
       'Easy on the network: a whole-song playback cache, request throttling and persistent caches let songs that have been played once replay offline.',
       'Private by design: all data stays in app-private storage and uninstalling leaves nothing behind. The interface is available in English and Simplified Chinese.',
-      'Covered by about 330 JVM unit tests, including Room database migration tests run with Robolectric.',
+      'Covered by more than 330 JVM unit tests, including Room database migration tests run with Robolectric.',
     ],
     notice: {
       title: 'Availability',
@@ -59,8 +60,8 @@ const projects = [
     tech: ['Kotlin', 'Jetpack Compose', 'Media3', 'Room', 'Koin', 'Retrofit', 'Coil', 'FFmpeg (JNI)'],
     cover: { src: '/assets/projects/lyra.png', fit: 'contain' },
     video: {
-      src: '/assets/projects/lyra-demo.mp4',
-      poster: '/assets/projects/lyra-demo-poster.webp',
+      src: '/assets/projects/lyra-demo-sound.mp4',
+      poster: '/assets/projects/lyra-demo-sound-poster.webp',
       width: 720,
       height: 1600,
     },

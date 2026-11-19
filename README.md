@@ -171,13 +171,21 @@ npm run images    # 只重新生成图片
 
 ### 演示视频
 
-设置了 `video: { src, width, height, poster? }` 时，卡片左侧显示静音的演示视频（带播放控件）：第一次滑进视口时自动播放一遍，滑出视口时暂停、滑回来继续；访客手动暂停后不会自动恢复。播放结束后回到封面，封面下方有 “Play demo” 按钮，点击后从头再播一遍。系统开启“减少动画”时不自动播放，直接显示封面和按钮。视频播完后只是隐藏、并不卸载，所以卡片尺寸不变，页面不会跳动。
+设置了 `video: { src, width, height, poster? }` 时，卡片左侧先显示封面和 “Play demo” 按钮。演示视频带声音，而浏览器不允许自动播放有声视频，所以只在访客点击按钮后才从头播放（带播放控件，可调音量或静音）。播放中滑出视口会暂停，滑回来继续；播完后回到封面和按钮。视频设置了 `preload="none"`，不点就不下载。视频播完后只是隐藏、并不卸载，所以卡片尺寸不变，页面不会跳动。
 
-- 视频直接放在 `public/assets/projects/`，原样发布，不经过图片脚本处理。`width` / `height` 填视频的像素尺寸，用来提前占位、防止页面跳动；`poster` 是可选的静态首帧图。
-- 用 MP4（H.264），竖屏录制，控制在 30 秒左右、10MB 以内。用 ffmpeg 压缩并去掉音轨：
+- 视频直接放在 `public/assets/projects/`，原样发布，不经过图片脚本处理。`width` / `height` 填视频的像素尺寸，用来提前占位、防止页面跳动；`poster` 是可选的静态首帧图，点击播放后、第一帧解码出来之前显示。
+- 命名规则：`<项目>-demo-<版本>.mp4`，封面图 `<项目>-demo-<版本>-poster.webp`，版本名说明区别（如 `sound` 带声音、`silent` 静音）。旧版本保留在仓库里存档，页面只引用 `projects.js` 里写的那一版。目前 Lyra 用的是 `lyra-demo-sound`，`lyra-demo-silent` 是之前的静音版。
+- 用 MP4（H.264 + AAC），竖屏，控制在 1 分钟以内、10MB 以内。安卓自带的 `screenrecord` 录不到声音，带声音的录屏用 [scrcpy](https://github.com/Genymobile/scrcpy)（2.0+，Android 11+）：
 
   ```bash
-  ffmpeg -i raw.mp4 -vf "scale=720:-2,fps=30" -c:v libx264 -crf 28 -preset slow -pix_fmt yuv420p -an -movflags +faststart lyra-demo.mp4
+  scrcpy --no-window --no-control --max-size=2400 --audio-codec=aac --record=raw.mkv
+  ```
+
+  再用 ffmpeg 压缩，并把音量统一到 -16 LUFS：
+
+  ```bash
+  ffmpeg -i raw.mkv -vf "scale=720:-2,fps=30,format=yuv420p" -c:v libx264 -crf 26 -preset slow \
+    -af "loudnorm=I=-16:TP=-1.5:LRA=11" -c:a aac -b:a 128k -movflags +faststart lyra-demo-sound.mp4
   ```
 
 ## 图标与分享预览图
